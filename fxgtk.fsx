@@ -388,6 +388,12 @@ module Container =
 module Window =
     type T = Gtk.Window
 
+    /// Window position constants
+    module WindowPos =
+        let center       = Gtk.WindowPosition.Center
+        let centerAlways = Gtk.WindowPosition.CenterAlways
+        let centOnParent = Gtk.WindowPosition.CenterOnParent
+
     let setDefaultSize w h (wdg: T) =
         wdg.SetDefaultSize(w, h)
         wdg
