@@ -118,6 +118,8 @@ module App =
         // thread.IsBackground <- true
         thread.Start()
 
+    let quit = Gtk.Application.Quit
+
     let runWith initializer =
         Gtk.Application.Init()
         initializer()
