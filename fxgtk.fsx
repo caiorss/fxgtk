@@ -382,6 +382,12 @@ module Container =
          Expand  = false;
          Padding = 0
          }
+        
+    /// Create scrolledwindow    
+    let scrolledWindow (child: Gtk.Widget) =
+        let sc = new Gtk.ScrolledWindow()
+        sc.Add(child)
+        sc 
 
     /// Horizontal box container
     let hbox (conf: LayoutConf) (wdglist: Gtk.Widget list)  =
