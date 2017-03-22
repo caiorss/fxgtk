@@ -295,6 +295,10 @@ module Image =
     let scaleToHeight (maxHeight: int) (wdg: T) =
         wdg.Pixbuf <- Pixbuf.scaleToHeight maxHeight wdg.Pixbuf
 
+
+    let scaleToParentHeight (container: Gtk.Widget) (wdg: T) =        
+        scaleToHeight container.HeightRequest wdg 
+
 module Menu =
 
     let make () = new Gtk.Menu ()
