@@ -404,6 +404,16 @@ module Container =
         itemsList |> List.iter fix.Put ;
         fix
 
+    /// Position widget with coordinates in a fix container
+    ///
+    /// put (fix: Fixed) (widget, x, y)
+    ///
+    /// Example:
+    ///         > put fixed (entry, 200, 300)
+    ///
+    let put (fix: Gtk.Fixed) ((wdg, x, y): Gtk.Widget * int * int) =
+        fix.Put(wdg, x, y)
+
     /// Horizontal box container
     let hbox (conf: LayoutConf) (wdglist: Gtk.Widget list)  =
         let hbox = new Gtk.HBox(conf.Homon, conf.Space)
