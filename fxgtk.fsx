@@ -139,6 +139,23 @@ module App =
         fun () -> Gtk.Application.Invoke(hnd)
 
 
+
+
+/// Interface to Gtk Image
+module Image =
+    type T = Gtk.Image
+
+    /// Create new image
+    // let make = new Gtk.Image()
+
+    /// Load image from file
+    let loadFile (file: string) = new Gtk.Image(file)
+
+    // let setFromFile (file: string) (wdg: T) =
+    //     wdg.
+
+
+
 /// Widget Module 
 ///
 module Wdg =
