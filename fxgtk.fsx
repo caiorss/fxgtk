@@ -155,6 +155,14 @@ module Pixbuf =
     let getSize (pb: T) : (int * int) =
         (pb.Width, pb.Height)
 
+    let scaleByFactor (scale: float) (stdHeight: int) (pb: T) =
+        let w = float pb.Width
+        let h = float pb.Height
+        let hnew = scale * float stdHeight
+        pb.ScaleSimple(int <| hnew * w / h ,
+                       int hnew,
+                       Gdk.InterpType.Bilinear)
+
 
 /// Interface to Gtk Image
 module Image =
@@ -183,12 +191,7 @@ module Image =
 
     /// Resize image by factor
     let scaleByFactor (scale: float) (stdHeight: int) (wdg: T) =
-        let w = float wdg.Pixbuf.Width
-        let h = float wdg.Pixbuf.Height
-        let hnew = scale * float stdHeight
-        wdg.Pixbuf <- wdg.Pixbuf.ScaleSimple(int <| hnew * w / h ,
-                                             int hnew,
-                                             Gdk.InterpType.Bilinear)
+        wdg.Pixbuf <- Pixbuf.scaleByFactor scale stdHeight wdg.Pixbuf
 
 module Menu =
 
