@@ -152,6 +152,9 @@ module Pixbuf =
 
     let getHeight (pb: T) = pb.Height
 
+    let getSize (pb: T) : (int * int) =
+        (pb.Width, pb.Height)
+
 
 /// Interface to Gtk Image
 module Image =
