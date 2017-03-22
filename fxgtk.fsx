@@ -314,6 +314,9 @@ module Wdg =
     
     type T = Gtk.Widget
 
+    /// Upcast widget to Gtk.Widget class
+    let toWdg obj = obj :> T
+
     /// Create new Window  
     let makeWindow (title: string) = new Gtk.Window(title)
 
