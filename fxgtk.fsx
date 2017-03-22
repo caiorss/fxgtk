@@ -503,6 +503,12 @@ module Color =
     let White  = parseOrFail "white"
     let Black  = parseOrFail "black"
     let Cyan   = parseOrFail "cyan"
+    let Green  = parseOrFail "green"
+    let Grey   = parseOrFail "gray"
+
+    let LightBlue  = parseOrFail "lightblue"
+    let LightGreen = parseOrFail "lightgreen"
+    let LigthGray  = parseOrFail "lightgray"
 
 
 
