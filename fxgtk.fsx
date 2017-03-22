@@ -398,6 +398,10 @@ module Window =
         wdg.SetDefaultSize(w, h)
         wdg
 
+    let setPosition pos (wdg: T) =
+        wdg.SetPosition(pos)
+        wdg
+
     let setIconFromFile (file: string) (wdg: T) =
         wdg.SetIconFromFile(file)
 
