@@ -175,6 +175,11 @@ module Wdg =
     let modifyBg col (wdg: #T) =
         wdg.ModifyBg(Gtk.StateType.Normal, col)
         
+
+/// Gtk Containers
+module Container =
+    open LayoutConf
+
         
     let defaultConf  =
         {Homon   = true;
@@ -184,10 +189,7 @@ module Wdg =
          Padding = 0
          }
 
-    let add (parent: Gtk.Container) (child: T) =
-        parent.Add(child)
-        parent
-    
+    /// Horizontal box container
     let hbox (conf: LayoutConf) (wdglist: Gtk.Widget list)  =
         let hbox = new Gtk.HBox(conf.Homon, conf.Space)
         wdglist |> List.iter (fun w -> hbox.PackStart(w,
@@ -197,6 +199,7 @@ module Wdg =
         hbox 
 
 
+    /// Vertical box container
     let vbox (conf: LayoutConf) (wdglist: Gtk.Widget list)  =
         let vbox = new Gtk.VBox(conf.Homon, conf.Space)
         wdglist |> List.iter (fun w -> vbox.PackStart(w,
