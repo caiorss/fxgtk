@@ -163,6 +163,18 @@ module Image =
         wdg.File <- file
 
 
+module Menu =
+
+    let make () = new Gtk.Menu ()
+
+    let makeItem (label: string) handler =
+        let item = new Gtk.MenuItem(label)
+        item.Activated.Add(fun _ -> handler())
+        item
+
+    let popup (menu: Gtk.Menu) = menu.Popup()
+
+
 /// Widget Module 
 ///
 module Wdg =
