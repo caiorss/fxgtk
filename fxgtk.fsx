@@ -95,6 +95,7 @@ module Signal =
 
 /// Gtk.Application Wrapper module. 
 module App =
+    
     /// Start GTK application. Must be invoked before the GUI
     /// and widgets be created.
     let init () = Gtk.Application.Init()    
@@ -129,10 +130,6 @@ module App =
     let invoke (handler: unit -> unit) =
         let hnd = new System.EventHandler(fun _ _ -> handler ())
         Gtk.Application.Invoke(hnd)
-
-
-
-
 
 
 module Dialog =
@@ -202,6 +199,19 @@ module Dialog =
         App.invoke (fun () -> ignore <| dialog.Run () ; dialog.Destroy ())
 
 
+    let questionDialog (message: string) handler (parent: Gtk.Window) =
+        let dialog = new Gtk.MessageDialog(parent
+                                           ,Gtk.DialogFlags.DestroyWithParent
+                                           ,Gtk.MessageType.Question
+                                           ,Gtk.ButtonsType.YesNo
+                                           ,message
+                                           )
+        App.invoke (fun () ->
+                    handler (dialog.Run () = int Gtk.ResponseType.Yes );                    
+                    dialog.Destroy ()
+
+                    )
+       
 
 
     let runFileChoose (label: string) (path: string option) handler (win: Gtk.Window)  =
