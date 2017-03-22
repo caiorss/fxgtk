@@ -6,7 +6,9 @@ GTK_HOME   := /usr/lib/mono/gtk-sharp-3.0/
 
 
 lib    := fxgtk.dll 
-libsrc := fxgtk.fsx 
+libxml := fxgtk.xml 
+libsrc := fxgtk.fsx
+
 
 #
 ## ------------------------------------------------- ##
@@ -24,7 +26,7 @@ all: lib
 lib: $(lib)
 
 $(lib): $(libsrc)
-	$(FSC) $(libsrc) --target:library --out:$(lib) $(REFS)
+	$(FSC) $(libsrc) --out:$(lib) --doc:$(libxml) --target:library  $(REFS)
 
 clean:
 	rm -rf $(lib)
