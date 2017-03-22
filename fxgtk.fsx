@@ -223,11 +223,6 @@ module Window =
     let setBorderWidth (width: int) (wdg: T) =
         wdg.BorderWidth <- System.Convert.ToUInt32 width
         
-    let show (wdg: T) = wdg.Show()
-    
-    let showAll (wdg: T) =
-        wdg.ShowAll()
-        wdg 
 
     let getSize (wdg: T) = wdg.GetSize()
 
