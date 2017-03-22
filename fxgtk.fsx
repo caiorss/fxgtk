@@ -332,8 +332,6 @@ module Wdg =
     /// Create new label  
     let makeLabel (label: string) = new Gtk.Label(label)
 
-    let makeScrolledWindow () = new Gtk.ScrolledWindow()
-
     let makeIconFromFile (file: string) = new Gtk.StatusIcon(file)
     
     let getEntryText (wdg: Gtk.Entry): string =
