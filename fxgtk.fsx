@@ -162,6 +162,25 @@ module Image =
     let setFromFile (file: string) (wdg: T) =
         wdg.File <- file
 
+    /// Get image buffer from image
+    let getPixbuf (wdg: T) = wdg.Pixbuf
+
+    /// Get image width and height
+    let getSize (wdg: T): (int * int) =
+        (wdg.Pixbuf.Width, wdg.Pixbuf.Height)
+
+    let getHeight (wdg: T) = wdg.Pixbuf.Height
+
+    let getWidth (wdg: T) = wdg.Pixbuf.Width
+
+    /// Resize image by factor
+    let scaleByFactor (scale: float) (stdHeight: int) (wdg: T) =
+        let w = float wdg.Pixbuf.Width
+        let h = float wdg.Pixbuf.Height
+        let hnew = scale * float stdHeight
+        wdg.Pixbuf <- wdg.Pixbuf.ScaleSimple(int <| hnew * w / h ,
+                                             int hnew,
+                                             Gdk.InterpType.Bilinear)
 
 module Menu =
 
