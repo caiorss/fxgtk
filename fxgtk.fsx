@@ -150,6 +150,11 @@ module Dialog =
     let infoDialog (message: string) (parent: Gtk.Window)  =
         let dialog = new Gtk.MessageDialog(parent
                                            ,Gtk.DialogFlags.DestroyWithParent
+
+
+    let warningDialog (message: string) (parent: Gtk.Window)  =
+        let dialog = new Gtk.MessageDialog(parent
+                                           ,Gtk.DialogFlags.DestroyWithParent
                                            ,Gtk.MessageType.Warning
                                            ,Gtk.ButtonsType.Close
                                            ,message
