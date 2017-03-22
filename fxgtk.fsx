@@ -370,6 +370,11 @@ module Wdg =
 
     let showAll (wdg: T) = wdg.ShowAll()
         
+    let add (parent: Gtk.Container) (child: T) =
+        parent.Add(child)
+        parent
+
+
 
 /// Gtk Containers
 module Container =
