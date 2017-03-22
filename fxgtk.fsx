@@ -136,9 +136,11 @@ module App =
         let timeoutHnd = new GLib.TimeoutHandler(fun _ ->  handler (); true)
         ignore <| GLib.Timeout.Add(System.Convert.ToUInt32 delay, timeoutHnd)
 
-    let invokeIO handler =
-        let hnd = new System.EventHandler(fun _ -> handler)
-        fun () -> Gtk.Application.Invoke(hnd)
+    let invoke (handler: unit -> unit) =
+        let hnd = new System.EventHandler(fun _ _ -> handler ())
+        Gtk.Application.Invoke(hnd)
+
+
 
 
 /// Image manipulation
