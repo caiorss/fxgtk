@@ -156,9 +156,9 @@ module Image =
     /// Load image from file
     let loadFile (file: string) = new Gtk.Image(file)
 
-    // let setFromFile (file: string) (wdg: T) =
-    //     wdg.
-
+    /// Set image from file
+    let setFromFile (file: string) (wdg: T) =
+        wdg.File <- file
 
 
 /// Widget Module 
