@@ -307,6 +307,9 @@ module Image =
     let scaleByFactor (scale: float) (stdHeight: int) (wdg: T) =
         wdg.Pixbuf <- Pixbuf.scaleByFactor scale stdHeight wdg.Pixbuf
 
+    let scaleToHeight (maxHeight: int) (wdg: T) =
+        wdg.Pixbuf <- Pixbuf.scaleToHeight maxHeight wdg.Pixbuf
+
 module Menu =
 
     let make () = new Gtk.Menu ()
