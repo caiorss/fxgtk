@@ -207,15 +207,18 @@ module Wdg =
 
 
 
-
-
-
 module Window =
     type T = Gtk.Window
 
     let setDefaultSize w h (wdg: T) =
         wdg.SetDefaultSize(w, h)
         wdg
+
+    let setIconFromFile (file: string) (wdg: T) =
+        wdg.SetIconFromFile(file)
+
+    let setBorderWidth (width: int) (wdg: T) =
+        wdg.BorderWidth <- System.Convert.ToUInt32 width
         
     let show (wdg: T) = wdg.Show()
     
