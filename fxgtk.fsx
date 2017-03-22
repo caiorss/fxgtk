@@ -174,6 +174,12 @@ module Wdg =
     /// Set background color     
     let modifyBg col (wdg: #T) =
         wdg.ModifyBg(Gtk.StateType.Normal, col)
+
+
+    /// Show widget
+    let show (wdg: T) = wdg.Show()
+
+    let showAll (wdg: T) = wdg.ShowAll()
         
 
 /// Gtk Containers
