@@ -340,6 +340,9 @@ module Wdg =
     let setEntryText (wdg: Gtk.Entry) (text: string) =
         wdg.Text <- text     
 
+    let setSize (wdg: T) (width: int) (height: int) =
+        wdg.SetSizeRequest(width, height)
+
     /// Set background color     
     let modifyBg col (wdg: #T) =
         wdg.ModifyBg(Gtk.StateType.Normal, col)
