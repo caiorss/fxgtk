@@ -147,6 +147,18 @@ module App =
 
 module Dialog =
 
+    /// Run dialog.
+    let run (dialog: Gtk.Dialog) =
+        ignore <| dialog.Run () ;
+        dialog.Destroy ()
+
+
+    /// Run dialog safely when the Gtk event loop is running
+    /// in a background thread.
+    ///
+    let runInter (dialog: Gtk.Dialog) =
+        App.invoke(fun () -> ignore <| dialog.Run())
+
     let infoDialog (message: string) (parent: Gtk.Window)  =
         let dialog = new Gtk.MessageDialog(parent
                                            ,Gtk.DialogFlags.DestroyWithParent
