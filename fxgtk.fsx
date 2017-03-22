@@ -395,6 +395,10 @@ module Container =
     /// Create fixed container which can position widgets by coordinate.
     let makeFixed () = new Gtk.Fixed ()
 
+    let fixedItems (itemsList: (#Gtk.Widget * int * int) list) =
+        let fix = new Gtk.Fixed ()
+        itemsList |> List.iter fix.Put ;
+        fix
 
     /// Horizontal box container
     let hbox (conf: LayoutConf) (wdglist: Gtk.Widget list)  =
