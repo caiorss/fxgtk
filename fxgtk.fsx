@@ -159,9 +159,37 @@ module Dialog =
     let runInter (dialog: Gtk.Dialog) =
         App.invoke(fun () -> ignore <| dialog.Run())
 
+    module AboutTypes =
+        type AboutTypes =
+            | AboutProgramName    of string
+            | AboutProgramVersion of string
+            | AboutCopyright      of string
+            | AboutComments       of string
+            | AboutWebsite        of string
+
+    let private setAboutProp (about: Gtk.AboutDialog) prop =
+        match prop with
+        | AboutTypes.AboutProgramName v    -> about.ProgramName  <- v
+        | AboutTypes.AboutProgramVersion v -> about.Version      <- v
+        | AboutTypes.AboutCopyright v      -> about.Copyright    <- v
+        | AboutTypes.AboutComments v       -> about.Comments     <- v
+        | AboutTypes.AboutWebsite v        -> about.Website      <- v
+     //   | _                     -> failwith "Error: Not implemented."
+
+
+    let aboutDialog values =
+        let about = new Gtk.AboutDialog()
+        List.iter (setAboutProp about) values
+        about
+
     let infoDialog (message: string) (parent: Gtk.Window)  =
         let dialog = new Gtk.MessageDialog(parent
                                            ,Gtk.DialogFlags.DestroyWithParent
+                                           ,Gtk.MessageType.Info
+                                           ,Gtk.ButtonsType.Close
+                                           ,message
+                                           )
+        App.invoke (fun () -> ignore <| dialog.Run () ; dialog.Destroy ())
 
 
     let warningDialog (message: string) (parent: Gtk.Window)  =
