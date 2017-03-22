@@ -57,16 +57,6 @@ module Builder =
         builder.GetObject(widgetID) :?> Gtk.Entry
       
 
-module LayoutConf =
-    type LayoutConf = {
-           Homon:   bool
-         ; Space:   int 
-         ; Fill:    bool
-         ; Expand:  bool 
-         ; Padding: int 
-        }    
-
-
 
 module EventTypes =
     type Event =
@@ -104,7 +94,7 @@ module Signal =
 
 
 /// Gtk.Application Wrapper module. 
-module App =   
+module App =
     /// Start GTK application. Must be invoked before the GUI
     /// and widgets be created.
     let init () = Gtk.Application.Init()    
@@ -236,11 +226,6 @@ module Dialog =
 
 
 
-
-
-
-
-
 /// Image manipulation
 module Pixbuf =
     type T = Gdk.Pixbuf
@@ -355,7 +340,7 @@ module Wdg =
         wdg.Text
         
     let setEntryText (wdg: Gtk.Entry) (text: string) =
-        wdg.Text <- text     
+        wdg.Text <- text
 
     let setSize (wdg: T) (width: int) (height: int) =
         wdg.SetSizeRequest(width, height)
@@ -374,12 +359,23 @@ module Wdg =
         parent.Add(child)
         parent
 
+  
+ 
+module LayoutConf =
+    type LayoutConf = {
+           Homon:   bool
+         ; Space:   int 
+         ; Fill:    bool
+         ; Expand:  bool 
+         ; Padding: int 
+        }    
 
 
-/// Gtk Containers
+
+/// Gtk Containers 
 module Container =
     open LayoutConf
-
+    
         
     let defaultConf  =
         {Homon   = true;
