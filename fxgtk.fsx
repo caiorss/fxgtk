@@ -236,6 +236,37 @@ module Dialog =
 
 
 
+module TextView =
+
+    type T = Gtk.TextView
+
+    /// Create new text view widget
+    let make () =
+        new Gtk.TextView()
+
+    let getBuffer (tvw: T) =
+        tvw.Buffer
+
+    let getText (tvw: T) =
+        tvw.Buffer.Text
+
+    let setText (tvw: T) text =
+        tvw.Buffer.Text <- text
+
+    let clearText (tvw: T) =
+        tvw.Buffer.Text <- ""
+
+    let addText (tvw: T) text =
+        tvw.Buffer.Text <- tvw.Buffer.Text + text
+
+    let addLine (tvw: T) line =
+        tvw.Buffer.Text <- tvw.Buffer.Text + "\n" + line
+
+    let setEditable (tvw: T) flag =
+        tvw.Editable <- flag
+
+
+
 /// Image manipulation
 module Pixbuf =
     type T = Gdk.Pixbuf
