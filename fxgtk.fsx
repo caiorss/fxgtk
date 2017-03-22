@@ -143,10 +143,13 @@ module App =
 
 /// Image manipulation
 module Pixbuf =
+    type T = Pixbuf
 
     /// Load image from file
     let loadFile (file: string) = new Gdk.Pixbuf(file)
 
+    // let getSize (pb: T) : (int * int) =
+    //     (pb.Width, pb.Height)
 
 /// Interface to Gtk Image
 module Image =
