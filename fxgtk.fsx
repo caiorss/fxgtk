@@ -289,25 +289,4 @@ module Color =
 
 
 
-          
-App.init ()
-
-let win = Wdg.makeWindow "Test app"          
-          |> Window.setDefaultSize 400 300          
-          |> Window.showAll
-
-
-
-// Wdg.modifyBg (Color.parseOrFail "blue") win
-// Wdg.modifyBg (Color.rgb 200 100 0) win           
-Wdg.modifyBg Color.Cyan win 
-
-// let col = ref <| new Gdk.Color()
-// Gdk.Color.Parse("red", col)
-// win.ModifyBg(Gtk.StateType.Normal, !col)
-
-Signal.onDeleteExit win 
-
-App.run()
-
 
