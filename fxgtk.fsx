@@ -364,6 +364,12 @@ module Wdg =
     let modifyBg col (wdg: #T) =
         wdg.ModifyBg(Gtk.StateType.Normal, col)
 
+    let getSize (wdg: T) =
+        let w = ref 0
+        let h = ref 0
+        wdg.GetSizeRequest (w, h)
+        (!w, !h)
+
 
     /// Show widget
     let show (wdg: T) = wdg.Show()
