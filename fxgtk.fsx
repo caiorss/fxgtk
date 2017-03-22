@@ -139,6 +139,11 @@ module App =
         fun () -> Gtk.Application.Invoke(hnd)
 
 
+/// Image manipulation
+module Pixbuf =
+
+    /// Load image from file
+    let loadFile (file: string) = new Gdk.Pixbuf(file)
 
 
 /// Interface to Gtk Image
