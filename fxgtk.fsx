@@ -147,6 +147,16 @@ module Dialog =
 
     let runFileChoose (label: string) (path: string option) (win: Gtk.Window) handler =
 
+    let infoDialog (message: string) (parent: Gtk.Window)  =
+        let dialog = new Gtk.MessageDialog(parent
+                                           ,Gtk.DialogFlags.DestroyWithParent
+                                           ,Gtk.MessageType.Warning
+                                           ,Gtk.ButtonsType.Close
+                                           ,message
+                                           )
+        App.invoke (fun () -> ignore <| dialog.Run () ; dialog.Destroy ())
+
+
         let diag = new Gtk.FileChooserDialog(label
                                             ,win
                                             ,Gtk.FileChooserAction.Open
