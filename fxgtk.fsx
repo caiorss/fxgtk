@@ -263,6 +263,20 @@ module Pixbuf =
                        int hnew,
                        Gdk.InterpType.Bilinear)
 
+    /// Scale image to a given height keeping the image proportions.
+    ///
+    /// Example: Image has size 300 x 400 it will be adjusted to height 500
+    ///          - new height = 500
+    ///          - new width  = 300 / 400 * 500 = 375
+    ///          - new size   = 375 x 500
+    ///
+    let scaleToHeight (height: int) (pb: T) =
+        let w = float pb.Width
+        let h = float pb.Height
+        pb.ScaleSimple(int <| w / h * float height,
+                       height,
+                       Gdk.InterpType.Bilinear)
+
 
 /// Interface to Gtk Image
 module Image =
