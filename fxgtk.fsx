@@ -57,16 +57,6 @@ module Builder =
         builder.GetObject(widgetID) :?> Gtk.Entry
       
 
-module LayoutConf =
-    type LayoutConf = {
-           Homon:   bool
-         ; Space:   int 
-         ; Fill:    bool
-         ; Expand:  bool 
-         ; Padding: int 
-        }    
-
-
 
 module EventTypes =
     type Event =
@@ -104,7 +94,7 @@ module Signal =
 
 
 /// Gtk.Application Wrapper module. 
-module App =   
+module App =
     /// Start GTK application. Must be invoked before the GUI
     /// and widgets be created.
     let init () = Gtk.Application.Init()    
@@ -136,9 +126,104 @@ module App =
         let timeoutHnd = new GLib.TimeoutHandler(fun _ ->  handler (); true)
         ignore <| GLib.Timeout.Add(System.Convert.ToUInt32 delay, timeoutHnd)
 
-    let invokeIO handler =
-        let hnd = new System.EventHandler(fun _ -> handler)
-        fun () -> Gtk.Application.Invoke(hnd)
+    let invoke (handler: unit -> unit) =
+        let hnd = new System.EventHandler(fun _ _ -> handler ())
+        Gtk.Application.Invoke(hnd)
+
+
+
+
+
+
+module Dialog =
+
+    /// Run dialog.
+    let run (dialog: Gtk.Dialog) =
+        ignore <| dialog.Run () ;
+        dialog.Destroy ()
+
+
+    /// Run dialog safely when the Gtk event loop is running
+    /// in a background thread.
+    ///
+    let runInter (dialog: Gtk.Dialog) =
+        App.invoke(fun () -> ignore <| dialog.Run())
+
+    module AboutTypes =
+        type AboutTypes =
+            | AboutProgramName    of string
+            | AboutProgramVersion of string
+            | AboutCopyright      of string
+            | AboutComments       of string
+            | AboutWebsite        of string
+
+    let private setAboutProp (about: Gtk.AboutDialog) prop =
+        match prop with
+        | AboutTypes.AboutProgramName v    -> about.ProgramName  <- v
+        | AboutTypes.AboutProgramVersion v -> about.Version      <- v
+        | AboutTypes.AboutCopyright v      -> about.Copyright    <- v
+        | AboutTypes.AboutComments v       -> about.Comments     <- v
+        | AboutTypes.AboutWebsite v        -> about.Website      <- v
+     //   | _                     -> failwith "Error: Not implemented."
+
+
+    let aboutDialog values =
+        let about = new Gtk.AboutDialog()
+        List.iter (setAboutProp about) values
+        about
+
+    let infoDialog (message: string) (parent: Gtk.Window)  =
+        let dialog = new Gtk.MessageDialog(parent
+                                           ,Gtk.DialogFlags.DestroyWithParent
+                                           ,Gtk.MessageType.Info
+                                           ,Gtk.ButtonsType.Close
+                                           ,message
+                                           )
+        App.invoke (fun () -> ignore <| dialog.Run () ; dialog.Destroy ())
+
+
+    let warningDialog (message: string) (parent: Gtk.Window)  =
+        let dialog = new Gtk.MessageDialog(parent
+                                           ,Gtk.DialogFlags.DestroyWithParent
+                                           ,Gtk.MessageType.Warning
+                                           ,Gtk.ButtonsType.Close
+                                           ,message
+                                           )
+        App.invoke (fun () -> ignore <| dialog.Run () ; dialog.Destroy ())
+
+
+    let errorDialog (message: string) (parent: Gtk.Window)  =
+        let dialog = new Gtk.MessageDialog(parent
+                                           ,Gtk.DialogFlags.DestroyWithParent
+                                           ,Gtk.MessageType.Error
+                                           ,Gtk.ButtonsType.Close
+                                           ,message
+                                           )
+        App.invoke (fun () -> ignore <| dialog.Run () ; dialog.Destroy ())
+
+
+
+
+    let runFileChoose (label: string) (path: string option) handler (win: Gtk.Window)  =
+
+        let diag = new Gtk.FileChooserDialog(label
+                                            ,win
+                                            ,Gtk.FileChooserAction.Open
+                                            ,"Cancel"
+                                            ,Gtk.ResponseType.Cancel
+                                            ,"Open"
+                                            ,Gtk.ResponseType.Accept
+                                            )
+
+        Option.iter (fun p -> ignore <| diag.SetCurrentFolder p) path
+        diag.CanDefault <- true
+
+        App.invoke (fun () -> if diag.Run () = int Gtk.ResponseType.Accept
+                              then handler <| Some diag.Filename
+                              else handler None
+                              diag.Destroy()
+                    )
+
 
 
 /// Image manipulation
@@ -161,6 +246,20 @@ module Pixbuf =
         let hnew = scale * float stdHeight
         pb.ScaleSimple(int <| hnew * w / h ,
                        int hnew,
+                       Gdk.InterpType.Bilinear)
+
+    /// Scale image to a given height keeping the image proportions.
+    ///
+    /// Example: Image has size 300 x 400 it will be adjusted to height 500
+    ///          - new height = 500
+    ///          - new width  = 300 / 400 * 500 = 375
+    ///          - new size   = 375 x 500
+    ///
+    let scaleToHeight (height: int) (pb: T) =
+        let w = float pb.Width
+        let h = float pb.Height
+        pb.ScaleSimple(int <| w / h * float height,
+                       height,
                        Gdk.InterpType.Bilinear)
 
 
@@ -193,6 +292,9 @@ module Image =
     let scaleByFactor (scale: float) (stdHeight: int) (wdg: T) =
         wdg.Pixbuf <- Pixbuf.scaleByFactor scale stdHeight wdg.Pixbuf
 
+    let scaleToHeight (maxHeight: int) (wdg: T) =
+        wdg.Pixbuf <- Pixbuf.scaleToHeight maxHeight wdg.Pixbuf
+
 module Menu =
 
     let make () = new Gtk.Menu ()
@@ -208,7 +310,7 @@ module Menu =
 /// Widget Module 
 ///
 module Wdg =
-    open LayoutConf
+
     
     type T = Gtk.Widget
 
@@ -238,7 +340,10 @@ module Wdg =
         wdg.Text
         
     let setEntryText (wdg: Gtk.Entry) (text: string) =
-        wdg.Text <- text     
+        wdg.Text <- text
+
+    let setSize (wdg: T) (width: int) (height: int) =
+        wdg.SetSizeRequest(width, height)
 
     /// Set background color     
     let modifyBg col (wdg: #T) =
@@ -250,11 +355,27 @@ module Wdg =
 
     let showAll (wdg: T) = wdg.ShowAll()
         
+    let add (parent: Gtk.Container) (child: T) =
+        parent.Add(child)
+        parent
 
-/// Gtk Containers
+  
+ 
+module LayoutConf =
+    type LayoutConf = {
+           Homon:   bool
+         ; Space:   int 
+         ; Fill:    bool
+         ; Expand:  bool 
+         ; Padding: int 
+        }    
+
+
+
+/// Gtk Containers 
 module Container =
     open LayoutConf
-
+    
         
     let defaultConf  =
         {Homon   = true;
@@ -288,8 +409,18 @@ module Container =
 module Window =
     type T = Gtk.Window
 
+    /// Window position constants
+    module WindowPos =
+        let center       = Gtk.WindowPosition.Center
+        let centerAlways = Gtk.WindowPosition.CenterAlways
+        let centOnParent = Gtk.WindowPosition.CenterOnParent
+
     let setDefaultSize w h (wdg: T) =
         wdg.SetDefaultSize(w, h)
+        wdg
+
+    let setPosition pos (wdg: T) =
+        wdg.SetPosition(pos)
         wdg
 
     let setIconFromFile (file: string) (wdg: T) =
