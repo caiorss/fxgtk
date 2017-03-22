@@ -142,10 +142,10 @@ module App =
 
 
 
+
+
+
 module Dialog =
-
-
-    let runFileChoose (label: string) (path: string option) (win: Gtk.Window) handler =
 
     let infoDialog (message: string) (parent: Gtk.Window)  =
         let dialog = new Gtk.MessageDialog(parent
@@ -156,6 +156,8 @@ module Dialog =
                                            )
         App.invoke (fun () -> ignore <| dialog.Run () ; dialog.Destroy ())
 
+
+    let runFileChoose (label: string) (path: string option) handler (win: Gtk.Window)  =
 
         let diag = new Gtk.FileChooserDialog(label
                                             ,win
@@ -249,7 +251,7 @@ module Menu =
 /// Widget Module 
 ///
 module Wdg =
-    open LayoutConf
+
     
     type T = Gtk.Widget
 
