@@ -142,6 +142,35 @@ module App =
 
 
 
+module Dialog =
+
+
+    let runFileChoose (label: string) (path: string option) (win: Gtk.Window) handler =
+
+        let diag = new Gtk.FileChooserDialog(label
+                                            ,win
+                                            ,Gtk.FileChooserAction.Open
+                                            ,"Cancel"
+                                            ,Gtk.ResponseType.Cancel
+                                            ,"Open"
+                                            ,Gtk.ResponseType.Accept
+                                            )
+
+        Option.iter (fun p -> ignore <| diag.SetCurrentFolder p) path
+        diag.CanDefault <- true
+
+        App.invoke (fun () -> if diag.Run () = int Gtk.ResponseType.Accept
+                              then handler <| Some diag.Filename
+                              else handler None
+                              diag.Destroy()
+                    )
+
+
+
+
+
+
+
 
 /// Image manipulation
 module Pixbuf =
