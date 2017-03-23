@@ -120,6 +120,15 @@ module App =
         initializer()
         Gtk.Application.Run()
 
+    let withThread thunk =
+        Gdk.Threads.Init ()
+        Gdk.Threads.Enter()
+        let resp = thunk ()
+        Gdk.Threads.Leave ()
+        System.Threading.Thread.Sleep 10
+        resp
+
+
     /// Safe timer to update Gtk GUI like Windows Forms timer.
     /// It is not safe to update the GUI from other threads.
     ///    
