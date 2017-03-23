@@ -332,26 +332,37 @@ module Image =
         wdg.File <- file
 
     /// Get image buffer from image
-    let getPixbuf (wdg: T) = wdg.Pixbuf
+    let getPixbuf (wdg: T) =
+        Option.ofObj wdg.Pixbuf
 
     /// Get image width and height
-    let getSize (wdg: T): (int * int) =
-        (wdg.Pixbuf.Width, wdg.Pixbuf.Height)
+    let getSize (wdg: T): (int * int) option =
+        wdg |> getPixbuf
+            |> Option.map (fun w -> wdg.Pixbuf.Width, wdg.Pixbuf.Height )
 
-    let getHeight (wdg: T) = wdg.Pixbuf.Height
+    let getHeight (wdg: T) =
+        wdg |> getPixbuf
+            |> Option.map (fun pb -> pb.Height)
 
-    let getWidth (wdg: T) = wdg.Pixbuf.Width
+    let getWidth (wdg: T) =
+        wdg |> getPixbuf
+            |> Option.map (fun pb -> pb.Width)
 
     /// Resize image by factor
     let scaleByFactor (scale: float) (stdHeight: int) (wdg: T) =
         wdg.Pixbuf <- Pixbuf.scaleByFactor scale stdHeight wdg.Pixbuf
 
     let scaleToHeight (maxHeight: int) (wdg: T) =
-        wdg.Pixbuf <- Pixbuf.scaleToHeight maxHeight wdg.Pixbuf
+        wdg |> getPixbuf
+            |> Option.iter (fun pb -> wdg.Pixbuf <- Pixbuf.scaleToHeight maxHeight pb)
 
 
-    let scaleToParentHeight (container: Gtk.Widget) (wdg: T) =        
-        scaleToHeight container.HeightRequest wdg 
+    let setFromFileScale (height: int) (file: string) (wdg: T) =
+        wdg.File <- file
+        scaleToHeight height wdg
+
+
+
 
 module Menu =
 
