@@ -111,6 +111,10 @@ module App =
 
     let quit = Gtk.Application.Quit
 
+    let exit () =
+        Gtk.Application.Quit()
+        ignore <| System.Environment.Exit(0)
+
     let runWith initializer =
         Gtk.Application.Init()
         initializer()
