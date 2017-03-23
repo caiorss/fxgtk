@@ -578,6 +578,56 @@ module Window =
     let getPosition (wdg: T) = wdg.GetPosition()    
 
 
+
+module TreeView =
+
+    type ListBox = {
+         ListBoxView:  Gtk.TreeView
+       ; ListBoxModel: Gtk.ListStore
+        }
+
+    /// Create new TreeView object
+    let treeView () = new Gtk.TreeView ()
+
+    /// Create new TreeView Column object
+    let treeViewColumn title = new Gtk.TreeViewColumn(Title=title)
+
+    /// Create cell renderer text object
+    let cellRenderText () = new Gtk.CellRendererText()
+
+    /// Create new ListStore object
+    ///
+    ///  Example:
+    ///
+    ///  > let l1 = listStore [| typeof<string>; typeof<float> |]
+    ///    val l1 : Gtk.ListStore
+    ///
+    let listStore (types: System.Type []) = new Gtk.ListStore(types)
+
+    /// Add a row of values to ListStore
+    let listStoreAddRow (lstore: Gtk.ListStore) row =
+        lstore.AppendValues(row)
+
+    let listStoreAddValue (lstore: Gtk.ListStore) value : unit =
+        ignore <| lstore.AppendValues([|value|])
+
+    let listBox colType label =
+        let tview = treeView()
+        let col   = treeViewColumn label
+        let model = listStore [| colType |]
+        let cell  = cellRenderText ()
+        col.PackStart(cell, true)
+        col.AddAttribute(cell, "text", 0)
+        ignore <| tview.AppendColumn(col)
+        tview.Model <- model
+        {ListBoxView = tview ; ListBoxModel = model}
+
+    let listBoxAddValue (lbox: ListBox) value =
+        listStoreAddValue lbox.ListBoxModel value
+
+
+
+
 module WUtils =
 
     let private defaultWidth  = 683
