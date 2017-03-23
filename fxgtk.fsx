@@ -19,7 +19,50 @@ $ fsc fxgtk.fsx --target:winexe --out:fxgtk-app.exe \
 #r "/usr/lib/mono/gtk-sharp-3.0/glib-sharp.dll"
 #r "/usr/lib/mono/gtk-sharp-3.0/gtk-sharp.dll"
 #r "/usr/lib/mono/gtk-sharp-3.0/gdk-sharp.dll"
-#endif 
+#endif
+
+
+/// Gtk Color combinators
+module Color =
+
+    /// Parse color name returning None (option) if it fails.
+    let parse colName =
+        let col = ref <| new Gdk.Color()
+        match Gdk.Color.Parse(colName, col) with
+        | true  -> Some !col
+        | false -> None
+
+    /// Parse color and throw exception if it fail.
+    let parseOrFail colName =
+        match parse colName with
+        | Some col -> col
+        | _        -> failwith "Error: invalid color name"
+
+    /// Create color from rgb (red blue green)
+    ///
+    let rgb (r: int) (g: int) (b: int) =
+        let rr = System.Convert.ToByte(r)
+        let gg = System.Convert.ToByte(g)
+        let bb = System.Convert.ToByte(b)
+        new Gdk.Color(rr, gg, bb)
+
+    // ======== Color constants ========= \\
+    //
+    let Red    = parseOrFail "red"
+    let Blue   = parseOrFail "blue"
+    let Yellow = parseOrFail "yellow"
+    let Brown  = parseOrFail "brown"
+    let White  = parseOrFail "white"
+    let Black  = parseOrFail "black"
+    let Cyan   = parseOrFail "cyan"
+    let Green  = parseOrFail "green"
+    let Grey   = parseOrFail "gray"
+
+    let LightBlue  = parseOrFail "lightblue"
+    let LightGreen = parseOrFail "lightgreen"
+    let LigthGray  = parseOrFail "lightgray"
+
+
    
 /// Build interface from Glade Generated layout.
 /// Gtk Builder wrapper.
@@ -211,7 +254,7 @@ module Dialog =
                                            )
         App.invoke (fun () -> ignore <| dialog.Run () ; dialog.Destroy ())
 
-
+    /// Question Dialog with Yes and No button
     let questionDialog (message: string) handler (parent: Gtk.Window) =
         let dialog = new Gtk.MessageDialog(parent
                                            ,Gtk.DialogFlags.DestroyWithParent
@@ -535,42 +578,44 @@ module Window =
     let getPosition (wdg: T) = wdg.GetPosition()    
 
 
-module Color =
-    let parse colName =
-        let col = ref <| new Gdk.Color()
-        match Gdk.Color.Parse(colName, col) with 
-        | true  -> Some !col
-        | false -> None
+module WUtils =
 
-    let parseOrFail colName =
-        match parse colName with
-        | Some col -> col
-        | _        -> failwith "Error: invalid color name"
+    let private defaultWidth  = 683
+    let private defaultHeight = 397
 
-    /// Create color from rgb (red blue green)
-    ///
-    let rgb (r: int) (g: int) (b: int) =
-        let rr = System.Convert.ToByte(r)
-        let gg = System.Convert.ToByte(g)
-        let bb = System.Convert.ToByte(b)
-        new Gdk.Color(rr, gg, bb)
+    module WForm =
 
-    // ======== Color constants ========= \\
-    //    
-    let Red    = parseOrFail "red"
-    let Blue   = parseOrFail "blue"
-    let Yellow = parseOrFail "yellow"
-    let Brown  = parseOrFail "brown"
-    let White  = parseOrFail "white"
-    let Black  = parseOrFail "black"
-    let Cyan   = parseOrFail "cyan"
-    let Green  = parseOrFail "green"
-    let Grey   = parseOrFail "gray"
+        type  T = {  Window:   Gtk.Window
+                   ; Fixed:    Gtk.Fixed
+                   ; EventBox: Gtk.EventBox
+                  }
 
-    let LightBlue  = parseOrFail "lightblue"
-    let LightGreen = parseOrFail "lightgreen"
-    let LigthGray  = parseOrFail "lightgray"
+        let getWindow   (form: T) = form.Window
+        let getFixed    (form: T) = form.Fixed
+        let getEventBox (form: T) = form.EventBox
 
+        /// Make a .NET Windows Forms like window which the components can
+        /// be positioned by coordinates
+        ///
+        let makeForm (title: string): T =
+            let win = new Gtk.Window(title)
+            let box = new Gtk.EventBox()
+            let fix = new Gtk.Fixed()
+            win.SetSizeRequest(defaultWidth, defaultHeight)
+            box.Add(fix)
+            win.Add(box)
+            {Window = win ; Fixed = fix; EventBox = box}
 
+        let show (form: T) =
+            let win = form.Window
+            win.ShowAll()
+            form
+
+        let put (form: T) (wdg, x, y): unit =
+            form.Fixed.Put(wdg, x, y)
+
+        let addList (form: T) (wdgList: (Gtk.Widget * int * int) list) =
+            let fix = form.Fixed
+            wdgList |> List.iter (fun (w, x, y) -> fix.Put(w, x, y))
 
 
