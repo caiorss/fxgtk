@@ -582,8 +582,9 @@ module Window =
 module TreeView =
 
     type ListBox = {
-         ListBoxView:  Gtk.TreeView
-       ; ListBoxModel: Gtk.ListStore
+         ListBoxView:      Gtk.TreeView
+       ; ListBoxContainer: Gtk.ScrolledWindow
+       ; ListBoxModel:     Gtk.ListStore
         }
 
     /// Create new TreeView object
