@@ -790,6 +790,9 @@ module TreeView =
         tview.Model.GetValue(!titer, column)
 
 
+    let getSelected (tview: Gtk.TreeView) =
+        let model = tview.Model
+        [| for i = 1 to model.NColumns do yield getSelectedCol tview i |]
 
 
 
