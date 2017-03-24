@@ -605,6 +605,10 @@ module TreeView =
         tview.Selection.GetSelected titer
         model.GetValue(!titer, column)
 
+
+    let onTreeViewChanged (tview: Gtk.TreeView) (handler: unit -> unit) : System.IDisposable =
+        tview.Selection.Changed.Subscribe(fun _ -> handler ())
+
     /// Create new ListStore object
     ///
     ///  Example:
