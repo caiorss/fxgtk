@@ -630,11 +630,14 @@ module TreeView =
         let col   = treeViewColumn label
         let model = listStore [| colType |]
         let cell  = cellRenderText ()
+        cell.Editable <- true
+        let scr   = new Gtk.ScrolledWindow()
+        scr.Add(tview)
         col.PackStart(cell, true)
         col.AddAttribute(cell, "text", 0)
         ignore <| tview.AppendColumn(col)
         tview.Model <- model
-        {ListBoxView = tview ; ListBoxModel = model}
+        {ListBoxView = tview ; ListBoxContainer = scr; ListBoxModel = model}
 
     let listBoxAddValue (lbox: ListBox) value =
         listStoreAddValue lbox.ListBoxModel value
