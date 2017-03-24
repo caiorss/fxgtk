@@ -828,7 +828,7 @@ module SimpleListBox =
         lbox.ListBoxModel.Clear()
 
     let getSelection (lbox: ListBox) =
-        getSelectedCol lbox.ListBoxView lbox.ListBoxModel 0
+        getSelectedCol lbox.ListBoxView  0
 
     let onChanged (lbox: ListBox) handler =
         TreeView.onChanged lbox.ListBoxView handler
