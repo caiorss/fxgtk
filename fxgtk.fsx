@@ -429,31 +429,12 @@ module Wdg =
     /// Upcast widget to Gtk.Widget class
     let toWdg obj = obj :> T
 
-    /// Create new Window  
-    let makeWindow (title: string) = new Gtk.Window(title)
-
-    /// Create new button 
-    let makeButton label = new Gtk.Button(Label = label)
-
-    /// Create new entry 
-    let makeEntry () = new Gtk.Entry()
-
-    /// Create textview 
-    let makeTextView () = new Gtk.TextView()
-
     /// Create drawing area 
     let makeDrawingArea () = new Gtk.DrawingArea()
 
-    /// Create new label  
-    let makeLabel (label: string) = new Gtk.Label(label)
 
     let makeIconFromFile (file: string) = new Gtk.StatusIcon(file)
     
-    let getEntryText (wdg: Gtk.Entry): string =
-        wdg.Text
-        
-    let setEntryText (wdg: Gtk.Entry) (text: string) =
-        wdg.Text <- text
 
     let setSize (wdg: T) (width: int) (height: int) =
         wdg.SetSizeRequest(width, height)
