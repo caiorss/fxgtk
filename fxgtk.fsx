@@ -804,6 +804,60 @@ module WUtils =
     let private defaultWidth  = 683
     let private defaultHeight = 397
 
+    module ImageView =
+
+        type ImageView =
+            private { window: Gtk.Window 
+                    ; image:  Gtk.Image 
+                    }
+                    with
+                        static member Create(win, image) = { window = win ; image = image }
+                        member this.GetWindow () = this.window 
+                        member this.GetImage  () = this.image
+                        
+        
+        /// Make a window containing only an image widget
+        /// It is useful to display images.
+        ///    
+        let makeImageView (title: string) =
+            let win = new Gtk.Window(title)
+            let img = new Gtk.Image()
+            win.SetSizeRequest(defaultWidth, defaultHeight)
+            win.Add(img)
+            ImageView.Create (win, img)
+
+        let show (w: ImageView) =
+            w.GetWindow().ShowAll()
+
+        let destroy (w: ImageView) =
+            w.GetWindow().Destroy()
+
+        let setImageFromPbuf (w: ImageView) pbuf =
+            let (_, h) = w.GetWindow().GetSize()
+            let img = w.GetImage()            
+            img.Pixbuf <- pbuf
+            Image.scaleToHeight h img
+            
+        let setImageFromFile (w: ImageView) file =
+            let (_, h) = w.GetWindow().GetSize()
+            let img = w.GetImage()
+            img.File <- file
+            Image.scaleToHeight h img
+
+
+    /// Make a window containing only a text view
+    /// It is useful to display multi line texts.
+    ///
+    let makeTextView (title: string) =
+        let win = new Gtk.Window(title)
+        let txt = new Gtk.TextView()
+        let scr = new Gtk.ScrolledWindow()
+        // Set initial window size 
+        win.SetSizeRequest(defaultWidth, defaultHeight)
+        scr.Add(txt)
+        win.Add(scr)
+        (win, txt)    
+
     module WForm =
 
         type  T = {  Window:   Gtk.Window
