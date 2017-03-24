@@ -596,6 +596,15 @@ module TreeView =
     /// Create cell renderer text object
     let cellRenderText () = new Gtk.CellRendererText()
 
+
+    /// Get value of selected column
+    /// Note: The returned value must be cast to the column type.
+    ///
+    let treeViewGetSelectedCol (tview: Gtk.TreeView) (model: Gtk.ListStore) column =
+        let titer = ref Unchecked.defaultof<Gtk.TreeIter>
+        tview.Selection.GetSelected titer
+        model.GetValue(!titer, column)
+
     /// Create new ListStore object
     ///
     ///  Example:
