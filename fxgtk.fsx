@@ -784,10 +784,12 @@ module TreeView =
     /// Get value of selected column
     /// Note: The returned value must be cast to the column type.
     ///
-    let getSelectedCol (tview: Gtk.TreeView) (model: Gtk.ListStore) column =
+    let getSelectedCol (tview: Gtk.TreeView) column =
         let titer = ref Unchecked.defaultof<Gtk.TreeIter>
         ignore <| tview.Selection.GetSelected titer
-        model.GetValue(!titer, column)
+        tview.Model.GetValue(!titer, column)
+
+
 
 
 
