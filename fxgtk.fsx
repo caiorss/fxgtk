@@ -796,47 +796,6 @@ module TreeView =
 
 
 
-module SimpleListBox =
-
-    open TreeView
-
-    type ListBox = {
-         ListBoxView:      Gtk.TreeView
-       ; ListBoxContainer: Gtk.ScrolledWindow
-       ; ListBoxModel:     Gtk.ListStore
-        }
-
-
-    let listBox colType label =
-        let tview = treeView()
-        let col   = treeViewColumn label
-        let model = listStore [| colType |]
-        let cell  = cellRenderText ()
-        cell.Editable <- true
-        let scr   = new Gtk.ScrolledWindow()
-        scr.Add(tview)
-        col.PackStart(cell, true)
-        col.AddAttribute(cell, "text", 0)
-        ignore <| tview.AppendColumn(col)
-        tview.Model <- model
-        {ListBoxView = tview ; ListBoxContainer = scr; ListBoxModel = model}
-
-    let addValue (lbox: ListBox) value =
-        listStoreAddValue lbox.ListBoxModel value
-
-    let addList (lbox: ListBox) valueList =
-        List.iter (addValue lbox) valueList
-
-    let clear (lbox: ListBox) =
-        lbox.ListBoxModel.Clear()
-
-    let getSelection (lbox: ListBox) =
-        getSelectedCol lbox.ListBoxView  0
-
-    let onChanged (lbox: ListBox) handler =
-        TreeView.onChanged lbox.ListBoxView handler
-
-
 
 module WUtils =
 
