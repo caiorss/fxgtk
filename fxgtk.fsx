@@ -297,7 +297,7 @@ module TextView =
     type T = Gtk.TextView
 
     /// Create new text view widget
-    let make () =
+    let textview () =
         new Gtk.TextView()
 
     let getBuffer (tvw: T) =
