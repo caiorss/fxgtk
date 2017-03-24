@@ -662,11 +662,8 @@ module Window =
 
 module TreeView =
 
-    type ListBox = {
-         ListBoxView:      Gtk.TreeView
-       ; ListBoxContainer: Gtk.ScrolledWindow
-       ; ListBoxModel:     Gtk.ListStore
-        }
+
+    //========== Constructor Functions ================= //
 
     /// Create new TreeView object
     let treeView () = new Gtk.TreeView ()
@@ -675,20 +672,18 @@ module TreeView =
     let treeViewColumn title = new Gtk.TreeViewColumn(Title=title)
 
     /// Create cell renderer text object
-    let cellRenderText () = new Gtk.CellRendererText()
+    let cellRenderText () =
+        new Gtk.CellRendererText()
 
+    let cellRenderPixbuf () =
+        new Gtk.CellRendererPixbuf()
 
-    /// Get value of selected column
-    /// Note: The returned value must be cast to the column type.
-    ///
-    let treeViewGetSelectedCol (tview: Gtk.TreeView) (model: Gtk.ListStore) column =
-        let titer = ref Unchecked.defaultof<Gtk.TreeIter>
-        tview.Selection.GetSelected titer
-        model.GetValue(!titer, column)
+    let cellRenderToggle () =
+        new Gtk.CellRendererToggle()
 
+    let cellRendererCombo () =
+        new Gtk.CellRendererCombo()
 
-    let onTreeViewChanged (tview: Gtk.TreeView) (handler: unit -> unit) : System.IDisposable =
-        tview.Selection.Changed.Subscribe(fun _ -> handler ())
 
     /// Create new ListStore object
     ///
@@ -706,6 +701,42 @@ module TreeView =
     let listStoreAddValue (lstore: Gtk.ListStore) value : unit =
         ignore <| lstore.AppendValues([|value|])
 
+
+    //========== Events ================= //
+
+
+    let onChanged (tview: Gtk.TreeView) (handler: unit -> unit) : System.IDisposable =
+        tview.Selection.Changed.Subscribe(fun _ -> handler ())
+
+
+    //========== Getters  ================= //
+
+    /// Get index of selected row
+    let getSelectedRow (tview: Gtk.TreeView) =
+        let (tpath, _) = tview.GetCursor()
+        tpath.Indices.[0]
+
+    /// Get value of selected column
+    /// Note: The returned value must be cast to the column type.
+    ///
+    let getSelectedCol (tview: Gtk.TreeView) (model: Gtk.ListStore) column =
+        let titer = ref Unchecked.defaultof<Gtk.TreeIter>
+        ignore <| tview.Selection.GetSelected titer
+        model.GetValue(!titer, column)
+
+
+
+module SimpleListBox =
+
+    open TreeView
+
+    type ListBox = {
+         ListBoxView:      Gtk.TreeView
+       ; ListBoxContainer: Gtk.ScrolledWindow
+       ; ListBoxModel:     Gtk.ListStore
+        }
+
+
     let listBox colType label =
         let tview = treeView()
         let col   = treeViewColumn label
@@ -720,9 +751,20 @@ module TreeView =
         tview.Model <- model
         {ListBoxView = tview ; ListBoxContainer = scr; ListBoxModel = model}
 
-    let listBoxAddValue (lbox: ListBox) value =
+    let addValue (lbox: ListBox) value =
         listStoreAddValue lbox.ListBoxModel value
 
+    let addList (lbox: ListBox) valueList =
+        List.iter (addValue lbox) valueList
+
+    let clear (lbox: ListBox) =
+        lbox.ListBoxModel.Clear()
+
+    let getSelection (lbox: ListBox) =
+        getSelectedCol lbox.ListBoxView lbox.ListBoxModel 0
+
+    let onChanged (lbox: ListBox) handler =
+        TreeView.onChanged lbox.ListBoxView handler
 
 
 
