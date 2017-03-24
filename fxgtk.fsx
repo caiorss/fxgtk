@@ -708,7 +708,9 @@ module TreeView =
     ///  > let l1 = listStore [| typeof<string>; typeof<float> |]
     ///    val l1 : Gtk.ListStore
     ///
-    let listStore (types: System.Type []) = new Gtk.ListStore(types)
+    let listStore (types: System.Type list) =
+        new Gtk.ListStore(Array.ofList types)
+
 
     /// Add a row of values to ListStore
     let listStoreAddRow (lstore: Gtk.ListStore) row =
