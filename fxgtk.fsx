@@ -549,14 +549,67 @@ module Container =
 
 
 
+
+
 module Window =
     type T = Gtk.Window
 
-    /// Window position constants
-    module WindowPos =
-        let center       = Gtk.WindowPosition.Center
-        let centerAlways = Gtk.WindowPosition.CenterAlways
-        let centOnParent = Gtk.WindowPosition.CenterOnParent
+    let defaultWidth  = 683
+    let defaultHeight = 397
+
+    // Window position constants
+    //
+    let PosCenter         = Gtk.WindowPosition.Center
+    let PosCenterAlways   = Gtk.WindowPosition.CenterAlways
+    let PosCenterOnParent = Gtk.WindowPosition.CenterOnParent
+
+    // ========= Events =================== //
+
+    let onDelete (win: T) handler =
+        win.DeleteEvent.Subscribe(fun _ -> handler ())
+
+    let onDeleteExit (win: T) =
+        win.DeleteEvent.Subscribe(fun _ -> App.exit())
+
+    let onAdded (win: T) handler =
+        win.Added.Subscribe(fun arg -> handler arg)
+
+    // ======= Constructors Functions ====== //
+
+    /// Create new window
+    let window (title: string) =
+        let win = new Gtk.Window(title)
+        win.SetSizeRequest(defaultWidth, defaultHeight)
+        ignore <| win.Added.Subscribe(fun _ -> win.ShowAll())
+        win
+
+    /// Create new window configured as main window.
+    let mainWindow (title: string) =
+        let win = new Gtk.Window(title)
+        win.ShowAll()
+        // Auto update window when a widget is added.
+        ignore <| win.Added.Subscribe(fun _ -> win.ShowAll())
+        win.SetSizeRequest(defaultWidth, defaultHeight)
+        // Exit application when user close window
+        ignore <| win.DeleteEvent.Subscribe(fun _ -> App.exit())
+        win
+
+    // ============== Getters ================== //
+
+    let getSize (wdg: T) = wdg.GetSize()
+
+
+    let getPosition (wdg: T) = wdg.GetPosition()
+
+    /// Get mouse position from the upper left corner of window
+    let getPointer (wdg: T) = wdg.GetPointer()
+
+
+    // ============== Setters ================== //
+
+    let setSize w h (wdg: T) =
+        wdg.SetSizeRequest(w, h)
+        wdg
 
     let setDefaultSize w h (wdg: T) =
         wdg.SetDefaultSize(w, h)
@@ -572,11 +625,6 @@ module Window =
     let setBorderWidth (width: int) (wdg: T) =
         wdg.BorderWidth <- System.Convert.ToUInt32 width
         
-
-    let getSize (wdg: T) = wdg.GetSize()
-
-    let getPosition (wdg: T) = wdg.GetPosition()    
-
 
 
 module TreeView =
