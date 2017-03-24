@@ -493,6 +493,18 @@ module Button =
     let click(btn: T) =
         btn.Click()
 
+module Label =
+
+    type T = Gtk.Label
+
+    /// Create new label
+    let label (title: string) = new Gtk.Label(title)
+
+    let getText (lbl: T) =
+        lbl.Text
+
+    let setText (lbl: T) text =
+        lbl.Text <- text
 
 
 module Entry =
