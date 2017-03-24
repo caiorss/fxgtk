@@ -98,7 +98,17 @@ module Builder =
     /// Get entry object from glade builder     
     let getEntry (builder: T) widgetID =
         builder.GetObject(widgetID) :?> Gtk.Entry
-      
+
+
+    let getTextView (builder: T) widgetID =
+        builder.GetObject(widgetID) :?> Gtk.TextView
+
+
+    let getImage (builder: T) widgetID =
+        builder.GetObject(widgetID) :?> Gtk.Image
+
+    let getTreeView (builder: T) widgetID =
+        builder.GetObject(widgetID) :?> Gtk.TreeView
 
 
 module EventTypes =
@@ -297,7 +307,7 @@ module TextView =
     type T = Gtk.TextView
 
     /// Create new text view widget
-    let make () =
+    let textview () =
         new Gtk.TextView()
 
     let getBuffer (tvw: T) =
@@ -374,6 +384,9 @@ module Image =
     let setFromFile (file: string) (wdg: T) =
         wdg.File <- file
 
+    let setFromPixbuf (pbuf: Gdk.Pixbuf) (wdg: T)=
+        wdg.Pixbuf <- pbuf
+
     /// Get image buffer from image
     let getPixbuf (wdg: T) =
         Option.ofObj wdg.Pixbuf
@@ -429,31 +442,12 @@ module Wdg =
     /// Upcast widget to Gtk.Widget class
     let toWdg obj = obj :> T
 
-    /// Create new Window  
-    let makeWindow (title: string) = new Gtk.Window(title)
-
-    /// Create new button 
-    let makeButton label = new Gtk.Button(Label = label)
-
-    /// Create new entry 
-    let makeEntry () = new Gtk.Entry()
-
-    /// Create textview 
-    let makeTextView () = new Gtk.TextView()
-
     /// Create drawing area 
     let makeDrawingArea () = new Gtk.DrawingArea()
 
-    /// Create new label  
-    let makeLabel (label: string) = new Gtk.Label(label)
 
     let makeIconFromFile (file: string) = new Gtk.StatusIcon(file)
     
-    let getEntryText (wdg: Gtk.Entry): string =
-        wdg.Text
-        
-    let setEntryText (wdg: Gtk.Entry) (text: string) =
-        wdg.Text <- text
 
     let setSize (wdg: T) (width: int) (height: int) =
         wdg.SetSizeRequest(width, height)
@@ -478,7 +472,49 @@ module Wdg =
         parent.Add(child)
         parent
 
-  
+/// Button Combinators
+module Button =
+
+    type T = Gtk.Button
+
+    let button label = new Gtk.Button(Label = label)
+
+    /// Add click event to button
+    let onClick(btn: T) handler =
+        btn.Clicked.Subscribe(fun arg -> handler arg)
+
+    /// Programatically click the button
+    let click(btn: T) =
+        btn.Click()
+
+module Label =
+
+    type T = Gtk.Label
+
+    /// Create new label
+    let label (title: string) = new Gtk.Label(title)
+
+    let getText (lbl: T) =
+        lbl.Text
+
+    let setText (lbl: T) text =
+        lbl.Text <- text
+
+
+module Entry =
+
+    type T = Gtk.Entry
+
+    /// Create new entry
+    let entry () = new Gtk.Entry()
+
+    let getText (wdg: T): string =
+        wdg.Text
+
+    let setText (wdg: T) (text: string) =
+        wdg.Text <- text
+
+
  
 module LayoutConf =
     type LayoutConf = {
@@ -505,10 +541,9 @@ module Container =
          }
         
     /// Create scrolledwindow    
-    let scrolledWindow (child: Gtk.Widget) =
-        let sc = new Gtk.ScrolledWindow()
-        sc.Add(child)
-        sc 
+    let scrolledWindow () =
+        new Gtk.ScrolledWindow()
+
 
     /// Create fixed container which can position widgets by coordinate.
     let makeFixed () = new Gtk.Fixed ()
@@ -549,14 +584,67 @@ module Container =
 
 
 
+
+
 module Window =
     type T = Gtk.Window
 
-    /// Window position constants
-    module WindowPos =
-        let center       = Gtk.WindowPosition.Center
-        let centerAlways = Gtk.WindowPosition.CenterAlways
-        let centOnParent = Gtk.WindowPosition.CenterOnParent
+    let defaultWidth  = 683
+    let defaultHeight = 397
+
+    // Window position constants
+    //
+    let PosCenter         = Gtk.WindowPosition.Center
+    let PosCenterAlways   = Gtk.WindowPosition.CenterAlways
+    let PosCenterOnParent = Gtk.WindowPosition.CenterOnParent
+
+    // ========= Events =================== //
+
+    let onDelete (win: T) handler =
+        win.DeleteEvent.Subscribe(fun _ -> handler ())
+
+    let onDeleteExit (win: T) =
+        win.DeleteEvent.Subscribe(fun _ -> App.exit())
+
+    let onAdded (win: T) handler =
+        win.Added.Subscribe(fun arg -> handler arg)
+
+    // ======= Constructors Functions ====== //
+
+    /// Create new window
+    let window (title: string) =
+        let win = new Gtk.Window(title)
+        win.SetSizeRequest(defaultWidth, defaultHeight)
+        ignore <| win.Added.Subscribe(fun _ -> win.ShowAll())
+        win
+
+    /// Create new window configured as main window.
+    let mainWindow (title: string) =
+        let win = new Gtk.Window(title)
+        win.ShowAll()
+        // Auto update window when a widget is added.
+        ignore <| win.Added.Subscribe(fun _ -> win.ShowAll())
+        win.SetSizeRequest(defaultWidth, defaultHeight)
+        // Exit application when user close window
+        ignore <| win.DeleteEvent.Subscribe(fun _ -> App.exit())
+        win
+
+    // ============== Getters ================== //
+
+    let getSize (wdg: T) = wdg.GetSize()
+
+
+    let getPosition (wdg: T) = wdg.GetPosition()
+
+    /// Get mouse position from the upper left corner of window
+    let getPointer (wdg: T) = wdg.GetPointer()
+
+
+    // ============== Setters ================== //
+
+    let setSize w h (wdg: T) =
+        wdg.SetSizeRequest(w, h)
+        wdg
 
     let setDefaultSize w h (wdg: T) =
         wdg.SetDefaultSize(w, h)
@@ -573,15 +661,202 @@ module Window =
         wdg.BorderWidth <- System.Convert.ToUInt32 width
         
 
-    let getSize (wdg: T) = wdg.GetSize()
 
-    let getPosition (wdg: T) = wdg.GetPosition()    
+module TreeView =
+
+    /// (ColumnLabel, ColumnType)
+    ///
+    // type TColumn = string *  System.Type
+
+    module Types =
+        type ColRender =
+            | ColText
+            | ColImage
+            | ColCombo
+            | ColToggle
+
+        type ColDesc = {
+             ColLabel:  string
+           ; ColType:   System.Type
+           ; ColRender: ColRender
+            }
+
+    //========== Constructor Functions ================= //
+
+    /// Create new TreeView object
+    let treeView () = new Gtk.TreeView ()
+
+    /// Create new TreeView Column object
+    let treeViewColumn title = new Gtk.TreeViewColumn(Title=title)
+
+    /// Create cell renderer text object
+    let cellRenderText () =
+        new Gtk.CellRendererText()
+
+    let cellRenderPixbuf () =
+        new Gtk.CellRendererPixbuf()
+
+    let cellRenderToggle () =
+        new Gtk.CellRendererToggle()
+
+    let cellRendererCombo () =
+        new Gtk.CellRendererCombo()
+
+
+    /// Create new ListStore object
+    ///
+    ///  Example:
+    ///
+    ///  > let l1 = listStore [| typeof<string>; typeof<float> |]
+    ///    val l1 : Gtk.ListStore
+    ///
+    let listStore (types: System.Type list) =
+        new Gtk.ListStore(Array.ofList types)
+
+
+    let addRow (tview: Gtk.TreeView) row =
+        let m = tview.Model :?> Gtk.ListStore
+        ignore <| m.AppendValues(row)
+
+    let addRowList (tview: Gtk.TreeView) rowList =
+        rowList |> List.iter (addRow tview)
+
+    /// Add a row of values to ListStore
+    let listStoreAddRow (lstore: Gtk.ListStore) row =
+        lstore.AppendValues(row)
+
+    let listStoreAddValue (lstore: Gtk.ListStore) value : unit =
+        ignore <| lstore.AppendValues([|value|])
+
+    /// TreeView with all column as text
+    ///
+    let treeViewText colList =
+        let tview = new Gtk.TreeView()
+        let model = listStore <| List.map snd colList
+        tview.Model <- model
+        colList |> List.iteri (fun idx (label, _) ->
+                               let col  = new Gtk.TreeViewColumn(Title = label)
+                               let cell = new Gtk.CellRendererText()
+                               col.PackStart(cell, true)
+                               col.AddAttribute(cell, "text", idx)
+                               ignore <| tview.AppendColumn(col)
+
+                              )
+        tview
+
+
+    let treeViewDesc (colList: Types.ColDesc list) =
+        let tview = new Gtk.TreeView()
+        let model = listStore <| List.map (fun (c: Types.ColDesc) -> c.ColType) colList
+        tview.Model <- model
+        colList |> List.iteri (fun idx cdesc ->
+                               let col  = new Gtk.TreeViewColumn(Title = cdesc.ColLabel)
+                               match cdesc.ColRender with
+                               | Types.ColText  ->  let cell = new Gtk.CellRendererText()
+                                                    col.PackStart(cell, true)
+                                                    col.AddAttribute(cell, "text", idx)
+
+                               | Types.ColImage ->  let cell = new Gtk.CellRendererPixbuf()
+                                                    col.PackStart(cell, true)
+                                                    col.AddAttribute(cell, "text", idx)
+
+                               | _              ->  failwith "Error: Not implemented"
+                               ignore <| tview.AppendColumn(col)
+                              )
+        tview
+
+
+
+
+
+    //========== Events ================= //
+
+
+    let onChanged (tview: Gtk.TreeView) (handler: unit -> unit) : System.IDisposable =
+        tview.Selection.Changed.Subscribe(fun _ -> handler ())
+
+
+    //========== Getters  ================= //
+
+    /// Get index of selected row
+    let getSelectedRow (tview: Gtk.TreeView) =
+        let (tpath, _) = tview.GetCursor()
+        tpath.Indices.[0]
+
+    /// Get value of selected column
+    /// Note: The returned value must be cast to the column type.
+    ///
+    let getSelectedCol (tview: Gtk.TreeView) column =
+        let titer = ref Unchecked.defaultof<Gtk.TreeIter>
+        ignore <| tview.Selection.GetSelected titer
+        tview.Model.GetValue(!titer, column)
+
+
+    let getSelected (tview: Gtk.TreeView) =
+        let model = tview.Model
+        [| for i = 1 to model.NColumns do yield getSelectedCol tview i |]
+
+
 
 
 module WUtils =
 
     let private defaultWidth  = 683
     let private defaultHeight = 397
+
+    module ImageView =
+
+        type ImageView =
+            private { window: Gtk.Window 
+                    ; image:  Gtk.Image 
+                    }
+                    with
+                        static member Create(win, image) = { window = win ; image = image }
+                        member this.GetWindow () = this.window 
+                        member this.GetImage  () = this.image
+                        
+        
+        /// Make a window containing only an image widget
+        /// It is useful to display images.
+        ///    
+        let makeImageView (title: string) =
+            let win = new Gtk.Window(title)
+            let img = new Gtk.Image()
+            win.SetSizeRequest(defaultWidth, defaultHeight)
+            win.Add(img)
+            ImageView.Create (win, img)
+
+        let show (w: ImageView) =
+            w.GetWindow().ShowAll()
+
+        let destroy (w: ImageView) =
+            w.GetWindow().Destroy()
+
+        let setImageFromPbuf (w: ImageView) pbuf =
+            let (_, h) = w.GetWindow().GetSize()
+            let img = w.GetImage()            
+            img.Pixbuf <- pbuf
+            Image.scaleToHeight h img
+            
+        let setImageFromFile (w: ImageView) file =
+            let (_, h) = w.GetWindow().GetSize()
+            let img = w.GetImage()
+            img.File <- file
+            Image.scaleToHeight h img
+
+
+    /// Make a window containing only a text view
+    /// It is useful to display multi line texts.
+    ///
+    let makeTextView (title: string) =
+        let win = new Gtk.Window(title)
+        let txt = new Gtk.TextView()
+        let scr = new Gtk.ScrolledWindow()
+        // Set initial window size 
+        win.SetSizeRequest(defaultWidth, defaultHeight)
+        scr.Add(txt)
+        win.Add(scr)
+        (win, txt)    
 
     module WForm =
 
