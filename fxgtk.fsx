@@ -493,6 +493,22 @@ module Button =
     let click(btn: T) =
         btn.Click()
 
+
+
+module Entry =
+
+    type T = Gtk.Entry
+
+    /// Create new entry
+    let entry () = new Gtk.Entry()
+
+    let getText (wdg: T): string =
+        wdg.Text
+
+    let setText (wdg: T) (text: string) =
+        wdg.Text <- text
+
+
  
 module LayoutConf =
     type LayoutConf = {
