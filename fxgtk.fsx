@@ -384,6 +384,9 @@ module Image =
     let setFromFile (file: string) (wdg: T) =
         wdg.File <- file
 
+    let setFromPixbuf (pbuf: Gdk.Pixbuf) (wdg: T)=
+        wdg.Pixbuf <- pbuf
+
     /// Get image buffer from image
     let getPixbuf (wdg: T) =
         Option.ofObj wdg.Pixbuf
