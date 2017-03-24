@@ -538,10 +538,9 @@ module Container =
          }
         
     /// Create scrolledwindow    
-    let scrolledWindow (child: Gtk.Widget) =
-        let sc = new Gtk.ScrolledWindow()
-        sc.Add(child)
-        sc 
+    let scrolledWindow () =
+        new Gtk.ScrolledWindow()
+
 
     /// Create fixed container which can position widgets by coordinate.
     let makeFixed () = new Gtk.Fixed ()
