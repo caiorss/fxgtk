@@ -712,12 +712,59 @@ module TreeView =
         new Gtk.ListStore(Array.ofList types)
 
 
+    let addRow (tview: Gtk.TreeView) row =
+        let m = tview.Model :?> Gtk.ListStore
+        ignore <| m.AppendValues(row)
+
+    let addRowList (tview: Gtk.TreeView) rowList =
+        rowList |> List.iter (addRow tview)
+
     /// Add a row of values to ListStore
     let listStoreAddRow (lstore: Gtk.ListStore) row =
         lstore.AppendValues(row)
 
     let listStoreAddValue (lstore: Gtk.ListStore) value : unit =
         ignore <| lstore.AppendValues([|value|])
+
+    /// TreeView with all column as text
+    ///
+    let treeViewText colList =
+        let tview = new Gtk.TreeView()
+        let model = listStore <| List.map snd colList
+        tview.Model <- model
+        colList |> List.iteri (fun idx (label, _) ->
+                               let col  = new Gtk.TreeViewColumn(Title = label)
+                               let cell = new Gtk.CellRendererText()
+                               col.PackStart(cell, true)
+                               col.AddAttribute(cell, "text", idx)
+                               ignore <| tview.AppendColumn(col)
+
+                              )
+        tview
+
+
+    let treeViewDesc (colList: Types.ColDesc list) =
+        let tview = new Gtk.TreeView()
+        let model = listStore <| List.map (fun (c: Types.ColDesc) -> c.ColType) colList
+        tview.Model <- model
+        colList |> List.iteri (fun idx cdesc ->
+                               let col  = new Gtk.TreeViewColumn(Title = cdesc.ColLabel)
+                               match cdesc.ColRender with
+                               | Types.ColText  ->  let cell = new Gtk.CellRendererText()
+                                                    col.PackStart(cell, true)
+                                                    col.AddAttribute(cell, "text", idx)
+
+                               | Types.ColImage ->  let cell = new Gtk.CellRendererPixbuf()
+                                                    col.PackStart(cell, true)
+                                                    col.AddAttribute(cell, "text", idx)
+
+                               | _              ->  failwith "Error: Not implemented"
+                               ignore <| tview.AppendColumn(col)
+                              )
+        tview
+
+
+
 
 
     //========== Events ================= //
