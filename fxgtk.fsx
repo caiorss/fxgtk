@@ -478,7 +478,21 @@ module Wdg =
         parent.Add(child)
         parent
 
-  
+/// Button Combinators
+module Button =
+
+    type T = Gtk.Button
+
+    let button label = new Gtk.Button(Label = label)
+
+    /// Add click event to button
+    let onClick(btn: T) handler =
+        btn.Clicked.Subscribe(fun arg -> handler arg)
+
+    /// Programatically click the button
+    let click(btn: T) =
+        btn.Click()
+
  
 module LayoutConf =
     type LayoutConf = {
