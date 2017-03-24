@@ -98,7 +98,17 @@ module Builder =
     /// Get entry object from glade builder     
     let getEntry (builder: T) widgetID =
         builder.GetObject(widgetID) :?> Gtk.Entry
-      
+
+
+    let getTextView (builder: T) widgetID =
+        builder.GetObject(widgetID) :?> Gtk.TextView
+
+
+    let getImage (builder: T) widgetID =
+        builder.GetObject(widgetID) :?> Gtk.Image
+
+    let getTreeView (builder: T) widgetID =
+        builder.GetObject(widgetID) :?> Gtk.TreeView
 
 
 module EventTypes =
