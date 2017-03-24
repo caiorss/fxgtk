@@ -662,6 +662,22 @@ module Window =
 
 module TreeView =
 
+    /// (ColumnLabel, ColumnType)
+    ///
+    // type TColumn = string *  System.Type
+
+    module Types =
+        type ColRender =
+            | ColText
+            | ColImage
+            | ColCombo
+            | ColToggle
+
+        type ColDesc = {
+             ColLabel:  string
+           ; ColType:   System.Type
+           ; ColRender: ColRender
+            }
 
     //========== Constructor Functions ================= //
 
