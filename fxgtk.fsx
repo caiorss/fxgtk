@@ -660,6 +660,22 @@ module Window =
     let setBorderWidth (width: int) (wdg: T) =
         wdg.BorderWidth <- System.Convert.ToUInt32 width
         
+module ListStore =
+
+    /// Create new ListStore object
+    ///
+    ///  Example:
+    ///
+    ///  > let l1 = listStore [| typeof<string>; typeof<float> |]
+    ///    val l1 : Gtk.ListStore
+    ///
+    let listStore (types: System.Type list) =
+        new Gtk.ListStore(Array.ofList types)
+
+    /// Add a row of values to ListStore
+    let addRow (lstore: Gtk.ListStore) row =
+        lstore.AppendValues(row)
+
 
 
 module TreeView =
