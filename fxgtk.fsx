@@ -798,6 +798,51 @@ module TreeView =
 
 
 
+module IconView =
+
+    type T = Gtk.IconView
+
+    /// Create new IconView object
+    ///
+    /// Parameters
+    ///
+    /// - model       - Holds the PixbufData and icons (ListStore)
+    /// - pixbufCol   - Pixbuf column number in the model
+    /// - markupCol   - Label column number in the model
+    ///
+    let iconView (model: Gtk.ListStore) pixbufCol markupCol =
+        let icv = new Gtk.IconView()
+        icv.Model        <- model
+        icv.PixbufColumn <- pixbufCol
+        icv.MarkupColumn <- markupCol
+        icv
+
+    let setSelectionMode (icv: T) mode =
+        icv.SelectionMode <- mode
+
+    /// Get IconView model or ListStore
+    let getModel (icv: T) = icv.Model
+
+
+    /// Get nth column item form IconView model (ListStore)
+    /// Note: The return value must be type cast to the appropriate type.
+    ///
+    let getSelecetdItem (icv: Gtk.IconView) (col: int)  =
+        let tpath = icv.SelectedItems.[0]
+        let iter  = ref Unchecked.defaultof<Gtk.TreeIter>
+        ignore <| icv.Model.GetIter(iter, tpath)
+        icv.Model.GetValue(!iter, col)
+
+
+    /// Event triggered when the user clicks at some icon or image
+    let onActivated (icv: T) handler =
+        icv.ItemActivated.Subscribe(fun arg -> handler arg)
+
+    /// Event triggered when the cursor moves selecting a new item
+    let onMoveCursor (icv: T) handler =
+        icv.MoveCursor.Subscribe(fun arg -> handler arg)
+
+
 
 module WUtils =
 
