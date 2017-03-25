@@ -866,7 +866,11 @@ module IconView =
         icv.MoveCursor.Subscribe(fun arg -> handler arg)
 
 
-
+/// Window Utilities with useful windows containing widgets
+///
+/// It contains modules that simplifies simple tasks like display image,
+//  display text and so on.
+///
 module WUtils =
 
     let private defaultWidth  = 683
