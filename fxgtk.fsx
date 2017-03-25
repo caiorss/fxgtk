@@ -265,7 +265,7 @@ module Dialog =
         App.invoke (fun () -> ignore <| dialog.Run () ; dialog.Destroy ())
 
     /// Question Dialog with Yes and No button
-    let questionDialog (message: string) handler (parent: Gtk.Window) =
+    let questionDialog (message: string) (parent: Gtk.Window) handler  =
         let dialog = new Gtk.MessageDialog(parent
                                            ,Gtk.DialogFlags.DestroyWithParent
                                            ,Gtk.MessageType.Question
