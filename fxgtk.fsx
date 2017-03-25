@@ -280,7 +280,7 @@ module Dialog =
        
 
 
-    let runFileChoose (label: string) (path: string option) handler (win: Gtk.Window)  =
+    let fileChooser (label: string) (path: string option) (win: Gtk.Window) handler   =
 
         let diag = new Gtk.FileChooserDialog(label
                                             ,win
@@ -290,6 +290,29 @@ module Dialog =
                                             ,"Open"
                                             ,Gtk.ResponseType.Accept
                                             )
+
+        Option.iter (fun p -> ignore <| diag.SetCurrentFolder p) path
+        diag.CanDefault <- true
+
+        App.invoke (fun () -> if diag.Run () = int Gtk.ResponseType.Accept
+                              then handler <| Some diag.Filename
+                              else handler None
+                              diag.Destroy()
+                    )
+
+
+
+    let folderChooser (label: string) (path: string option) (win: Gtk.Window) handler   =
+
+        let diag = new Gtk.FileChooserDialog(label
+                                            ,win
+                                            ,Gtk.FileChooserAction.Open
+                                            ,"Cancel"
+                                            ,Gtk.ResponseType.Cancel
+                                            ,"Open"
+                                            ,Gtk.ResponseType.Accept
+                                            )
+        diag.Action <- Gtk.FileChooserAction.SelectFolder
 
         Option.iter (fun p -> ignore <| diag.SetCurrentFolder p) path
         diag.CanDefault <- true
