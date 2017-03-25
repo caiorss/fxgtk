@@ -916,19 +916,48 @@ module WUtils =
             img.File <- file
             Image.scaleToHeight h img
 
+    module WText =
 
-    /// Make a window containing only a text view
-    /// It is useful to display multi line texts.
-    ///
-    let makeTextView (title: string) =
-        let win = new Gtk.Window(title)
-        let txt = new Gtk.TextView()
-        let scr = new Gtk.ScrolledWindow()
-        // Set initial window size 
-        win.SetSizeRequest(defaultWidth, defaultHeight)
-        scr.Add(txt)
-        win.Add(scr)
-        (win, txt)    
+        type WText =
+            private { window:    Gtk.Window 
+                    ; textview:  Gtk.TextView
+                    }
+                    with
+                        static member Create(win, tview) = { window = win ; textview = tview }
+                        member this.GetWindow () = this.window 
+                        member this.GetTextView () = this.textview
+                        
+        
+        /// Make a window containing only a text view
+        /// It is useful to display multi line texts.
+        let makeWText (title: string) =
+            let win = new Gtk.Window(title)
+            let txt = new Gtk.TextView()
+            let scr = new Gtk.ScrolledWindow()
+            // Set initial window size 
+            win.SetSizeRequest(defaultWidth, defaultHeight)
+            scr.Add(txt)
+            win.Add(scr)
+            WText.Create(win, txt)
+
+        let show (w: WText) =
+            w.GetWindow().ShowAll()
+
+        let hide (w: WText) =
+            w.GetWindow().Hide()
+
+        let destroy (w: WText) =
+            w.GetWindow().Destroy()
+
+        let getText (w: WText) =
+            w.GetTextView().Buffer.Text
+
+        let setText (w: WText) text =
+            w.GetTextView().Buffer.Text <- text
+
+        let addText (w: WText) text =
+            setText w (getText w + text)                        
+
 
     module WForm =
 
