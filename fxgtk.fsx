@@ -534,8 +534,19 @@ module Entry =
     let getText (wdg: T): string =
         wdg.Text
 
+    let setValue (wdg: T) value : unit =
+        wdg.Text <- sprintf "%A" value
+
     let setText (wdg: T) (text: string) =
         wdg.Text <- text
+
+    let getFloat (wdg: T): float option =
+        try  Some (float wdg.Text)
+        with _ -> None
+
+    let getInt (wdg: T): int option =
+        try Some (int wdg.Text)
+        with _ -> None
 
 
  
