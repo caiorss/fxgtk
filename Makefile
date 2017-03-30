@@ -17,7 +17,8 @@ appsrc := loader.fsx
 #
 ## ------------------------------------------------- ##
 
-LIBS       := atk-sharp.dll gio-sharp.dll glib-sharp.dll gtk-sharp.dll gdk-sharp.dll
+# Gtk-sharp Dependencies 
+LIBS       := atk-sharp.dll gio-sharp.dll glib-sharp.dll gtk-sharp.dll gdk-sharp.dll cairo-sharp.dll pango-sharp.dll
 
 REFS       := $(addprefix -r:$(GTK_HOME), $(LIBS))
 
