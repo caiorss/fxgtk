@@ -697,13 +697,18 @@ module Window =
         wdg.BorderWidth <- System.Convert.ToUInt32 width
 
 
-module DrawingArea =
+/// Combinators for Cairo.Context
+///
+
+/// Wrapper around Gtk.DrawingArea widget
+///
+module Canvas =
 
     type T = Gtk.DrawingArea
     type Ctx = Cairo.Context
 
-    /// Create a drawing area object
-    let drawingArea(): T =
+    /// Create a drawing area object / canvas
+    let canvas(): T =
         let draw = new Gtk.DrawingArea()
         draw.AddEvents <| int ( Gdk.EventMask.ButtonPressMask
                         ||| Gdk.EventMask.ButtonReleaseMask
@@ -712,10 +717,12 @@ module DrawingArea =
                         )
         draw
 
-    let drawingAreaInteract () =
-        let draw = drawingArea()
+    /// Crate a canvas (aka drawing area) with an update handler
+    //  function
+    //
+    let canvasWithHandler () =
+        let draw = canvas()
         let updateFn = ref (fun (cr: Ctx) -> ())
-
         draw.Drawn.Subscribe(fun arg ->
                              let cr = arg.Cr
                              cr.MoveTo(0.0, 0.0)
