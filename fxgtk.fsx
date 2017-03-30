@@ -699,6 +699,25 @@ module Window =
 
 /// Combinators for Cairo.Context
 ///
+module Draw =
+    type T = Cairo.Context
+
+    let lineTo (x, y) (ctx: T) =
+        ctx.LineTo(x, y)
+
+    let moveTo (x, y) (ctx: T) =
+        ctx.MoveTo(x, y)
+
+    let setLineWidth (w: float) (ctx: T) =
+        ctx.LineWidth <- w
+
+    let stroke (ctx: T) =
+        ctx.Stroke()
+
+    let setSourceRgb (r, g, b) (ctx: T) =
+        ctx.SetSourceRGB(r, g, b)
+
+
 
 /// Wrapper around Gtk.DrawingArea widget
 ///
