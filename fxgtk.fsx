@@ -695,6 +695,60 @@ module Window =
 
     let setBorderWidth (width: int) (wdg: T) =
         wdg.BorderWidth <- System.Convert.ToUInt32 width
+
+
+module DrawingArea =
+
+    type T = Gtk.DrawingArea
+    type Ctx = Cairo.Context
+
+    /// Create a drawing area object
+    let drawingArea(): T =
+        let draw = new Gtk.DrawingArea()
+        draw.AddEvents <| int ( Gdk.EventMask.ButtonPressMask
+                        ||| Gdk.EventMask.ButtonReleaseMask
+                        ||| Gdk.EventMask.KeyPressMask
+                        ||| Gdk.EventMask.PointerMotionMask
+                        )
+        draw
+
+    let drawingAreaInteract () =
+        let draw = drawingArea()
+        let updateFn = ref (fun (cr: Ctx) -> ())
+
+        draw.Drawn.Subscribe(fun arg ->
+                             let cr = arg.Cr
+                             cr.MoveTo(0.0, 0.0)
+                             !updateFn cr
+                             cr.Stroke()
+                             )
+
+        let updateDraw handler =
+            updateFn := handler
+            draw.QueueDraw()
+
+        draw, updateDraw
+
+
+    /// Update Drawing Area after the drawing was changed.
+    let update (wdg: T) = wdg.QueueDraw()
+
+    /// Event that happens when the user moves the mouse (pointer).
+    let onMouseMove (wdg: T) =
+        wdg.MotionNotifyEvent
+        |> Observable.map (fun arg -> arg.Event.X, arg.Event.Y)
+
+    /// Event that happens when the drawing area is update (repainted).
+    let onDraw (wdg: T) =
+        wdg.Drawn
+        |> Observable.map (fun arg -> arg.Cr)
+
+    let onButtonRelease (wdg: T) =
+        wdg.ButtonReleaseEvent
+
+    let onButtonPress (wdg: T) =
+        wdg.ButtonPressEvent
+
         
 module ListStore =
 
