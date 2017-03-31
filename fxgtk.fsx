@@ -744,6 +744,7 @@ module Draw =
 
     /// Primitve Cairo drawing functions
     module DrawPrimitives =
+        module DT = DrawTransforms
 
         //  Primitive stateful coordinate transformations
         //----------------------------------------
