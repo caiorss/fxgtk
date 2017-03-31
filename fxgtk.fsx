@@ -753,6 +753,10 @@ module Canvas =
 
     let getHeight (wdg: T) =
         wdg.Allocation.Height
+
+    let getWidth (wdg: T) =
+        wdg.Allocation.Width
+
     /// Create a drawing area object / canvas
     let canvas(): T =
         let draw = new Gtk.DrawingArea()
