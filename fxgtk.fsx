@@ -568,6 +568,12 @@ module Entry =
         wdg.KeyReleaseEvent
         |> Observable.map (fun _ -> wdg.Text)
 
+    /// Event that happens when user press returns in the entry box.
+    /// The text in the entry is passed to the callback / envent handler.
+    let onReturnKey (wdg: T) : System.IObservable<string> =
+        wdg.KeyReleaseEvent
+        |> Observable.map (fun _ -> wdg.Text)
+
 
  
 module LayoutConf =
