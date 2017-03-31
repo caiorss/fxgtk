@@ -697,6 +697,7 @@ module Window =
         wdg.BorderWidth <- System.Convert.ToUInt32 width
 
 
+
 /// Combinators for Cairo.Context
 ///
 module Draw =
@@ -704,8 +705,25 @@ module Draw =
 
     type T = Cairo.Context
 
-    /// No operation - do nothing
-    let nop (ctx: T) = ()
+    /// Helper functions for coordinate transformations
+    module DrawTransforms =
+
+        let translate (dx: float, dy: float) (x, y) =
+            dx + x, dy + y
+
+        let scale (kx:float) (ky: float) (x, y) =
+            kx * x, ky * y
+
+        let rotate (angle: float) (x, y) =
+            let c = cos angle
+            let s = sin angle
+            x * c - y * s, -(x * s + y * c)
+
+        let rotateDeg (angle: float) =
+            rotate <| angle * Math.PI / 180.0
+
+        let flipX (x:float,  y:float) = (-x, y)
+        let flipY (x: float, y:float) = (x, -y)
 
     let lineTo (x, y) (ctx: T) =
         ctx.LineTo(x, y)
