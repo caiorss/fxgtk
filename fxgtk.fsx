@@ -746,7 +746,7 @@ module Draw =
 /// Wrapper around Gtk.DrawingArea widget
 ///
 module Canvas =
-
+    module DP = Draw.DrawPrimitives
     type T = Gtk.DrawingArea
     type Ctx = Cairo.Context
 
