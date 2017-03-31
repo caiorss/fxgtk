@@ -725,35 +725,106 @@ module Draw =
         let flipX (x:float,  y:float) = (-x, y)
         let flipY (x: float, y:float) = (x, -y)
 
-    let lineTo (x, y) (ctx: T) =
-        ctx.LineTo(x, y)
+        let worldToViewport (xmin, xmax, ymin, ymax) (x, y) (width, height) =
+            let xv = width / (xmax - xmin) * (x - xmin)
+            let yv = height - height / (ymax - ymin) * (y - ymin)
+            (xv, yv)
 
-    let circle (x, y) radius (ctx: T) =
-        ctx.Save()
-        ctx.MoveTo(x + radius, y)
-        ctx.Arc(x, y, radius, 0.0, 2.0 * Math.PI)
-        ctx.Restore()
+    /// Primitve Cairo drawing functions
+    module DrawPrimitives =
 
-    let arc (x, y) radius angle1 angle2 (ctx: T) =
-        ctx.Arc(x, y, radius, angle1, angle2)
+        //  Primitive stateful coordinate transformations
+        //----------------------------------------
 
-    let moveTo (x, y) (ctx: T) =
-        ctx.MoveTo(x, y)
+        let rotate angle (ctx: T) =
+            ctx.Rotate(angle)
 
-    let rotate angle (ctx: T) =
-        ctx.Rotate(angle)
+        let scale (kx: float) (ky: float) (ctx: T) =
+            ctx.Scale(kx, ky)
 
-    let setLineWidth (w: float) (ctx: T) =
-        ctx.LineWidth <- w
+        let translate (tx, ty) (ctx: T) =
+            ctx.Translate(tx, ty)
 
-    let stroke (ctx: T) =
-        ctx.Stroke()
 
-    let setSourceRgb (r, g, b) (ctx: T) =
-        ctx.SetSourceRGB(r, g, b)
+        ///  Translate the coodinate system to a given point
+        ///  and flip the Y-axis.
+        ///
+        ///   Gtk default coodinate system is at upper left corner of screen.
+        ///   It sets the coordinate system origin to point P (px, py) and flips
+        ///   they Y-axis.
+        ///
+        ///   (0, 0)
+        ///         +-------------------------------+
+        ///         |                      y        |
+        ///         |  +----> x          |          |
+        ///         |  |                 |          |
+        ///         |  |                 +----- x   |
+        ///         | \ / y            P (px, py)   |
+        ///         |                               |
+        ///         +-------------------------------+
+        ///
+        let setCoordinate (px, py) (ctx: T) =
+            ctx.Translate(px, py)  // Translate to new origin
+            ctx.Scale(1.0, -1.0)   // Flip Y axis
+            ctx.MoveTo(0.0, 0.0)   // Move to new origin
 
-    let showText (text: string) (ctx: T) =
-        ctx.ShowText text
+
+        let setCoordinateBottom (canvas: Gtk.DrawingArea) (ctx: T) =
+            let height = float canvas.AllocatedHeight
+            ctx.Translate(0.0, height)
+            ctx.Scale(1.0, -1.0)
+            ctx.MoveTo(0.0, 0.0)
+
+        let setCoordinateCenter (canvas: Gtk.DrawingArea) (ctx: T) =
+            let height = float canvas.AllocatedHeight
+            let width  = float canvas.AllocatedWidth
+            ctx.Translate(width / 2.0, height / 2.0)
+            ctx.Scale(1.0, -1.0)
+            ctx.MoveTo(0.0, 0.0)
+
+        let moveTo (x, y) (ctx: T) =
+            ctx.MoveTo(x, y)
+
+
+        let stroke (ctx: T) =
+            ctx.Stroke()
+
+        // Primitive operations
+        //------------------------------------------
+
+        /// No operation - do nothing
+        let nop (ctx: T) = ()
+
+        let lineTo (x, y) (ctx: T) =
+            ctx.LineTo(x, y)
+
+        let circle (x, y) radius (ctx: T) =
+            ctx.Save()
+            ctx.MoveTo(x + radius, y)
+            ctx.Arc(x, y, radius, 0.0, 2.0 * Math.PI)
+            ctx.Restore()
+
+        let arc (x, y) radius angle1 angle2 (ctx: T) =
+            ctx.Arc(x, y, radius, angle1, angle2)
+
+        let showText (text: string) (ctx: T) =
+            ctx.ShowText text
+
+        let line (xa, ya) (xb, yb) (ctx: T) =
+            moveTo (xa, ya) ctx
+            lineTo (xb, yb) ctx
+
+
+        //  Drawing setting functions
+        //----------------------------------------
+
+
+        let setLineWidth (w: float) (ctx: T) =
+            ctx.LineWidth <- w
+
+        let setSourceRgb (r, g, b) (ctx: T) =
+            ctx.SetSourceRGB(r, g, b)
+
 
     // /// Draw Command types
     // module DrawCmdTypes =
