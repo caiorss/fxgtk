@@ -717,6 +717,13 @@ module Draw =
     let setSourceRgb (r, g, b) (ctx: T) =
         ctx.SetSourceRGB(r, g, b)
 
+    let showText (text: string) (ctx: T) =
+        ctx.ShowText text
+
+    // /// Draw Command types
+    // module DrawCmdTypes =
+    //     type DrawCmd
+
 
 
 /// Wrapper around Gtk.DrawingArea widget
