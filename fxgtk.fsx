@@ -874,12 +874,12 @@ module Canvas =
     let canvasWithHandler () =
         let draw = canvas()
         let updateFn = ref (fun (cr: Ctx) -> ())
-        draw.Drawn.Subscribe(fun arg ->
-                             let cr = arg.Cr
-                             cr.MoveTo(0.0, 0.0)
-                             !updateFn cr
-                             cr.Stroke()
-                             )
+        ignore <| draw.Drawn.Subscribe(fun arg ->
+                                       let cr = arg.Cr
+                                       cr.MoveTo(0.0, 0.0)
+                                       !updateFn cr
+                                       cr.Stroke()
+                                       )
 
         let updateDraw handler =
             updateFn := handler
