@@ -781,7 +781,8 @@ module Canvas =
 
 
     /// Update Drawing Area after the drawing was changed.
-    let update (wdg: T) = wdg.QueueDraw()
+    let update (wdg: T) =
+        App.invoke wdg.QueueDraw
 
     /// Event that happens when the user moves the mouse (pointer).
     let onMouseMove (wdg: T) =
