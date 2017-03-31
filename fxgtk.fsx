@@ -750,6 +750,9 @@ module Canvas =
     type T = Gtk.DrawingArea
     type Ctx = Cairo.Context
 
+
+    let getHeight (wdg: T) =
+        wdg.Allocation.Height
     /// Create a drawing area object / canvas
     let canvas(): T =
         let draw = new Gtk.DrawingArea()
