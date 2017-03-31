@@ -840,6 +840,8 @@ module Draw =
         let setLineWidth (w: float) (ctx: T) =
             ctx.LineWidth <- w
 
+        let setFontSize (h: float) (ctx: T) =
+            ctx.SetFontSize h
         let setSourceRgb (r, g, b) (ctx: T) =
             ctx.SetSourceRGB(r, g, b)
 
