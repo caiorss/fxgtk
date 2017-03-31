@@ -562,6 +562,12 @@ module Entry =
         try Some (int wdg.Text)
         with _ -> None
 
+    /// Event that happens when user releases some key in the entry box.
+    /// The text in the entry is passed to the callback / envent handler.
+    let onTextChange (wdg: T) : System.IObservable<string> =
+        wdg.KeyReleaseEvent
+        |> Observable.map (fun _ -> wdg.Text)
+
 
  
 module LayoutConf =
