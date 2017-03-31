@@ -850,6 +850,35 @@ module Draw =
             ctx.SetSourceRGB(r, g, b)
 
 
+    module DrawCmdTypes =
+        type Point = float * float
+        type Radius = float
+        type Angle = float
+
+        type DrawState = {
+             Scale:  (float * float) ref
+             Origin: (float * float) ref
+            }
+
+        type DrawCmd =
+            | DrawSetFontSzie of float
+            | DrawSetLineWidth of float
+            | DrawSetRgb of float * float * float
+
+            | DrawSetScale of float * float
+            | DrawSetOrigin of float * float
+            | DrawSetOriginBottom
+            | DrawSetUserCoord of float * float * float * float
+
+            | DrawLineTo of Point
+            | DrawMoveTo of Point
+            | DrawStroke
+            | DrawCircle of Point * Radius
+            | DrawArc    of Point * Radius * Angle * Angle
+            | DrawText   of Point * string
+
+            | DrawLine   of Point * Point
+
     // /// Draw Command types
     // module DrawCmdTypes =
     //     type DrawCmd
