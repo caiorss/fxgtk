@@ -842,6 +842,10 @@ module Draw =
 
         let setFontSize (h: float) (ctx: T) =
             ctx.SetFontSize h
+
+        let getLineWidth (ctx: T) =
+            ctx.LineWidth
+
         let setSourceRgb (r, g, b) (ctx: T) =
             ctx.SetSourceRGB(r, g, b)
 
