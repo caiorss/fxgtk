@@ -822,6 +822,12 @@ module Draw =
         let showText (text: string) (ctx: T) =
             ctx.ShowText text
 
+        let textAt (x, y) (text: string) (ctx: T) =
+            ctx.Save()
+            ctx.MoveTo(x, y)
+            ctx.ShowText text
+            ctx.Restore()
+
         let line (xa, ya) (xb, yb) (ctx: T) =
             moveTo (xa, ya) ctx
             lineTo (xb, yb) ctx
