@@ -879,6 +879,114 @@ module Draw =
 
             | DrawLine   of Point * Point
 
+
+    module DrawCmd =
+        module DP = DrawPrimitives
+        open DrawCmdTypes
+
+        let private applyTransf (state: DrawState) (x, y) =
+            let (sx, sy) = !state.Scale
+            let (tx, ty) = !state.Origin
+            sx * x + tx, sy * y + ty
+
+
+        let private runCmdSingle (canvas: Gtk.DrawingArea, ctx: Cairo.Context)
+                                 (state: DrawState)
+                                 (cmd: DrawCmd)  =
+
+            printfn "command = %A" cmd
+            printfn "state = %A" state
+            printfn "---------------------------\n\n"
+
+            match cmd with
+            | DrawSetScale (sx, sy)  -> state.Scale  := (sx, sy)
+            | DrawSetOrigin (tx, ty) -> state.Origin := (tx, ty)
+
+            | DrawSetOriginBottom
+              -> let h = float canvas.AllocatedHeight
+                 state.Scale := (1.0, -1.0)
+                 state.Origin := (0.0, h)
+
+            | DrawSetUserCoord (xmin, xmax, ymin, ymax)
+              -> let w = float canvas.AllocatedWidth
+                 let h = float canvas.AllocatedHeight
+                 let sx = w / (xmax - xmin)
+                 let sy = h / (ymax - ymin)
+                 let tx = - xmin * sx
+                 let ty = h + ymin * sy
+                 state.Scale   := sx, -sy
+                 state.Origin  := tx, ty
+
+
+            | DrawLineTo p
+               -> let pn = applyTransf state p
+                  DP.lineTo pn ctx
+
+            | DrawMoveTo p
+                -> let pn = applyTransf state p
+                   DP.moveTo pn ctx
+
+            | DrawStroke
+                -> DP.stroke ctx
+
+            | DrawCircle (p, r)
+                -> let pn = applyTransf state p
+                   printfn "pn = %A" pn
+                   DP.circle pn r ctx
+
+            | DrawArc (p, r, a1, a2)
+                -> let pn = applyTransf state p
+                   DP.arc pn r a1 a2 ctx
+
+            | DrawSetRgb (r, g, b)   -> DP.setSourceRgb (r, g, b) ctx
+
+            | DrawText (p, text)
+                -> let pn = applyTransf state p
+                   DP.textAt pn text ctx
+
+            | DrawLine (p1, p2)
+                -> let pn1 = applyTransf state p1
+                   let pn2 = applyTransf state p2
+                   DP.line pn1 pn2 ctx
+
+            | DrawSetFontSzie s      -> DP.setFontSize s ctx
+
+            | _                      -> failwith "Error: Not implemented"
+
+        /// Draw Command interpreter
+        let runCmd (cmdList: DrawCmd seq) (canvas: Gtk.DrawingArea, ctx: Cairo.Context) =
+            let state = { Scale  = ref (1.0, 1.0)
+                        ; Origin = ref (0.0, 0.0)
+                        }
+            DP.moveTo (applyTransf state (0.0, 0.0)) ctx
+            Seq.iter (runCmdSingle (canvas, ctx) state) cmdList
+
+
+
+        let lineTo p = DrawLineTo p
+
+        let moveTo p = DrawMoveTo p
+
+        let stroke = DrawStroke
+
+        let circle p r = DrawCircle (p, r)
+
+        let line p1 p2 = DrawLine (p1, p2)
+
+        let text p msg = DrawText (p, msg)
+
+        let setColorRgb r g b = DrawSetRgb (r, g, b)
+
+        let setFontSize s = DrawSetFontSzie s
+
+        let setOrigin p = DrawSetOrigin p
+        let setScale s = DrawSetScale s
+        let setOriginBottom = DrawSetOriginBottom
+
+        let setUserCoord xmin xmax ymin ymax =
+            DrawSetUserCoord (xmin, xmax, ymin, ymax)
+
+
     // /// Draw Command types
     // module DrawCmdTypes =
     //     type DrawCmd
