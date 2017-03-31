@@ -700,13 +700,30 @@ module Window =
 /// Combinators for Cairo.Context
 ///
 module Draw =
+    open System
+
     type T = Cairo.Context
+
+    /// No operation - do nothing
+    let nop (ctx: T) = ()
 
     let lineTo (x, y) (ctx: T) =
         ctx.LineTo(x, y)
 
+    let circle (x, y) radius (ctx: T) =
+        ctx.Save()
+        ctx.MoveTo(x + radius, y)
+        ctx.Arc(x, y, radius, 0.0, 2.0 * Math.PI)
+        ctx.Restore()
+
+    let arc (x, y) radius angle1 angle2 (ctx: T) =
+        ctx.Arc(x, y, radius, angle1, angle2)
+
     let moveTo (x, y) (ctx: T) =
         ctx.MoveTo(x, y)
+
+    let rotate angle (ctx: T) =
+        ctx.Rotate(angle)
 
     let setLineWidth (w: float) (ctx: T) =
         ctx.LineWidth <- w
