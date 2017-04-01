@@ -19,6 +19,8 @@ $ fsc fxgtk.fsx --target:winexe --out:fxgtk-app.exe \
 #r "/usr/lib/mono/gtk-sharp-3.0/glib-sharp.dll"
 #r "/usr/lib/mono/gtk-sharp-3.0/gtk-sharp.dll"
 #r "/usr/lib/mono/gtk-sharp-3.0/gdk-sharp.dll"
+#r "/usr/lib/mono/gtk-sharp-3.0/pango-sharp.dll"
+#r "/usr/lib/mono/gtk-sharp-3.0/cairo-sharp.dll"
 #endif
 
 
@@ -480,11 +482,23 @@ module Wdg =
         wdg.ModifyBg(Gtk.StateType.Normal, col)
 
     let getSize (wdg: T) =
+        wdg.AllocatedWidth, wdg.AllocatedHeight
+
+    let getHeight (wdg: T) =
+        wdg.AllocatedHeight
+
+    let getWidth (wdg: T) =
+        wdg.AllocatedWidth
+
+    let getSizeRequest (wdg: T) =
         let w = ref 0
         let h = ref 0
         wdg.GetSizeRequest (w, h)
         (!w, !h)
 
+    let getWidthRequest: T -> int = getSizeRequest >> fst
+
+    let getHeightRequest: T -> int = getSizeRequest >> snd
 
     /// Show widget
     let show (wdg: T) = wdg.Show()
@@ -547,6 +561,18 @@ module Entry =
     let getInt (wdg: T): int option =
         try Some (int wdg.Text)
         with _ -> None
+
+    /// Event that happens when user releases some key in the entry box.
+    /// The text in the entry is passed to the callback / envent handler.
+    let onTextChange (wdg: T) : System.IObservable<string> =
+        wdg.KeyReleaseEvent
+        |> Observable.map (fun _ -> wdg.Text)
+
+    /// Event that happens when user press returns in the entry box.
+    /// The text in the entry is passed to the callback / envent handler.
+    let onReturnKey (wdg: T) : System.IObservable<string> =
+        wdg.KeyReleaseEvent
+        |> Observable.map (fun _ -> wdg.Text)
 
 
  
@@ -693,6 +719,390 @@ module Window =
 
     let setBorderWidth (width: int) (wdg: T) =
         wdg.BorderWidth <- System.Convert.ToUInt32 width
+
+
+
+/// Combinators for Cairo.Context
+///
+module Draw =
+    open System
+
+    type T = Cairo.Context
+
+    /// Helper functions for coordinate transformations
+    module DrawTransforms =
+
+        let translate (dx: float, dy: float) (x, y) =
+            dx + x, dy + y
+
+        let scale (kx:float) (ky: float) (x, y) =
+            kx * x, ky * y
+
+        let rotate (angle: float) (x, y) =
+            let c = cos angle
+            let s = sin angle
+            x * c - y * s, -(x * s + y * c)
+
+        let rotateDeg (angle: float) =
+            rotate <| angle * Math.PI / 180.0
+
+        let flipX (x:float,  y:float) = (-x, y)
+        let flipY (x: float, y:float) = (x, -y)
+
+        let worldToViewport (xmin, xmax, ymin, ymax) (x, y) (width, height) =
+            let xv = width / (xmax - xmin) * (x - xmin)
+            let yv = height - height / (ymax - ymin) * (y - ymin)
+            (xv, yv)
+
+    /// Primitve Cairo drawing functions
+    module DrawPrimitives =
+        module DT = DrawTransforms
+
+        //  Primitive stateful coordinate transformations
+        //----------------------------------------
+
+        let rotate angle (ctx: T) =
+            ctx.Rotate(angle)
+
+        let scale (kx: float) (ky: float) (ctx: T) =
+            ctx.Scale(kx, ky)
+
+        let translate (tx, ty) (ctx: T) =
+            ctx.Translate(tx, ty)
+
+
+        ///  Translate the coodinate system to a given point
+        ///  and flip the Y-axis.
+        ///
+        ///   Gtk default coodinate system is at upper left corner of screen.
+        ///   It sets the coordinate system origin to point P (px, py) and flips
+        ///   they Y-axis.
+        ///
+        ///   (0, 0)
+        ///         +-------------------------------+
+        ///         |                      y        |
+        ///         |  +----> x          |          |
+        ///         |  |                 |          |
+        ///         |  |                 +----- x   |
+        ///         | \ / y            P (px, py)   |
+        ///         |                               |
+        ///         +-------------------------------+
+        ///
+        let setCoordinate (px, py) (ctx: T) =
+            ctx.Translate(px, py)  // Translate to new origin
+            ctx.Scale(1.0, -1.0)   // Flip Y axis
+            ctx.MoveTo(0.0, 0.0)   // Move to new origin
+
+
+        let setCoordinateBottom (canvas: Gtk.DrawingArea) (ctx: T) =
+            let height = float canvas.AllocatedHeight
+            ctx.Translate(0.0, height)
+            ctx.Scale(1.0, -1.0)
+            ctx.MoveTo(0.0, 0.0)
+
+        let setCoordinateCenter (canvas: Gtk.DrawingArea) (ctx: T) =
+            let height = float canvas.AllocatedHeight
+            let width  = float canvas.AllocatedWidth
+            ctx.Translate(width / 2.0, height / 2.0)
+            ctx.Scale(1.0, -1.0)
+            ctx.MoveTo(0.0, 0.0)
+
+        let moveTo (x, y) (ctx: T) =
+            ctx.MoveTo(x, y)
+
+
+        let stroke (ctx: T) =
+            ctx.Stroke()
+
+        // Primitive operations
+        //------------------------------------------
+
+        /// No operation - do nothing
+        let nop (ctx: T) = ()
+
+        let lineTo (x, y) (ctx: T) =
+            ctx.LineTo(x, y)
+
+        let circle (x, y) radius (ctx: T) =
+            ctx.Save()
+            ctx.MoveTo(x + radius, y)
+            ctx.Arc(x, y, radius, 0.0, 2.0 * Math.PI)
+            ctx.Restore()
+
+        let arc (x, y) radius angle1 angle2 (ctx: T) =
+            ctx.Arc(x, y, radius, angle1, angle2)
+
+        let showText (text: string) (ctx: T) =
+            ctx.ShowText text
+
+        let textAt (x, y) (text: string) (ctx: T) =
+            ctx.Save()
+            ctx.MoveTo(x, y)
+            ctx.ShowText text
+            ctx.Restore()
+
+        let line (xa, ya) (xb, yb) (ctx: T) =
+            moveTo (xa, ya) ctx
+            lineTo (xb, yb) ctx
+
+        let hline (xmin, xmax) y (ctx: T) =
+            ctx.Save()
+            moveTo (xmin, y) ctx 
+            lineTo (xmax, y) ctx
+            ctx.Restore()
+
+        let hlineFull y (canvas: Gtk.DrawingArea) (ctx: T) =
+            hline (0.0, float canvas.AllocatedWidth) y ctx
+
+            
+        //  Drawing setting functions
+        //----------------------------------------
+
+
+        let setLineWidth (w: float) (ctx: T) =
+            ctx.LineWidth <- w
+
+        let setFontSize (h: float) (ctx: T) =
+            ctx.SetFontSize h
+
+        let getLineWidth (ctx: T) =
+            ctx.LineWidth
+
+        let setSourceRgb (r, g, b) (ctx: T) =
+            ctx.SetSourceRGB(r, g, b)
+
+
+    module DrawCmdTypes =
+        type Point = float * float
+        type Radius = float
+        type Angle = float
+
+        type DrawState = {
+             Scale:  (float * float) ref
+             Origin: (float * float) ref
+            }
+
+        type DrawCmd =
+            | DrawSetFontSzie of float
+            | DrawSetLineWidth of float
+            | DrawSetRgb of float * float * float
+
+            | DrawSetScale of float * float
+            | DrawSetOrigin of float * float
+            | DrawSetOriginBottom
+            | DrawSetUserCoord of float * float * float * float
+
+            | DrawLineTo of Point
+            | DrawMoveTo of Point
+            | DrawStroke
+            | DrawCircle of Point * Radius
+            | DrawArc    of Point * Radius * Angle * Angle
+            | DrawText   of Point * string
+
+            | DrawLine   of Point * Point
+
+            | DrawList of DrawCmd list
+            | DrawForeach of (float -> DrawCmd) * float list
+            | DrawForRange of (float -> DrawCmd) * (float * float * float)
+
+
+    module DrawCmd =
+        module DP = DrawPrimitives
+        open DrawCmdTypes
+
+        let private applyTransf (state: DrawState) (x, y) =
+            let (sx, sy) = !state.Scale
+            let (tx, ty) = !state.Origin
+            sx * x + tx, sy * y + ty
+
+
+        let rec private runCmdSingle (canvas: Gtk.DrawingArea, ctx: Cairo.Context)
+                                     (state: DrawState)
+                                     (cmd: DrawCmd)  =
+
+            // printfn "command = %A" cmd
+            // printfn "state = %A" state
+            // printfn "---------------------------\n\n"
+
+            match cmd with
+            | DrawSetScale (sx, sy)  -> state.Scale  := (sx, sy)
+            | DrawSetOrigin (tx, ty) -> state.Origin := (tx, ty)
+
+            | DrawSetOriginBottom
+              -> let h = float canvas.AllocatedHeight
+                 state.Scale := (1.0, -1.0)
+                 state.Origin := (0.0, h)
+
+            | DrawSetUserCoord (xmin, xmax, ymin, ymax)
+              -> let w = float canvas.AllocatedWidth
+                 let h = float canvas.AllocatedHeight
+                 let sx = w / (xmax - xmin)
+                 let sy = h / (ymax - ymin)
+                 let tx = - xmin * sx
+                 let ty = h + ymin * sy
+                 state.Scale   := sx, -sy
+                 state.Origin  := tx, ty
+
+
+            | DrawLineTo p
+               -> let pn = applyTransf state p
+                  DP.lineTo pn ctx
+
+            | DrawMoveTo p
+                -> let pn = applyTransf state p
+                   DP.moveTo pn ctx
+
+            | DrawStroke
+                -> DP.stroke ctx
+
+            | DrawCircle (p, r)
+                -> let pn = applyTransf state p
+                   printfn "pn = %A" pn
+                   DP.circle pn r ctx
+
+            | DrawArc (p, r, a1, a2)
+                -> let pn = applyTransf state p
+                   DP.arc pn r a1 a2 ctx
+
+            | DrawSetRgb (r, g, b)   -> DP.setSourceRgb (r, g, b) ctx
+
+            | DrawText (p, text)
+                -> let pn = applyTransf state p
+                   DP.textAt pn text ctx
+
+            | DrawLine (p1, p2)
+                -> let pn1 = applyTransf state p1
+                   let pn2 = applyTransf state p2
+                   DP.line pn1 pn2 ctx
+
+            | DrawSetFontSzie s      -> DP.setFontSize s ctx
+
+            | DrawForeach (fn, paramlist)
+               -> paramlist |> List.iter (fun p -> runCmdSingle (canvas, ctx) state (fn p))
+
+            | DrawForRange (fn, (xmin, xmax, step))
+               -> for x in [xmin .. step .. xmax] do
+                      runCmdSingle (canvas, ctx) state (fn x)
+
+
+            | DrawList cmdList
+              -> cmdList |> List.iter (runCmdSingle (canvas, ctx) state)
+
+
+            | _                      -> failwith "Error: Not implemented"
+
+        /// Draw Command interpreter
+        let runCmd (cmd: DrawCmd) (canvas: Gtk.DrawingArea, ctx: Cairo.Context) =
+            let state = { Scale  = ref (1.0, 1.0)
+                        ; Origin = ref (0.0, 0.0)
+                        }
+            DP.moveTo (applyTransf state (0.0, 0.0)) ctx
+            runCmdSingle (canvas, ctx) state cmd
+
+
+
+        let lineTo p = DrawLineTo p
+
+        let moveTo p = DrawMoveTo p
+
+        let stroke = DrawStroke
+
+        let circle p r = DrawCircle (p, r)
+
+        let line p1 p2 = DrawLine (p1, p2)
+
+        let text p msg = DrawText (p, msg)
+
+        let setColorRgb r g b = DrawSetRgb (r, g, b)
+
+        let setFontSize s = DrawSetFontSzie s
+
+        let setOrigin p = DrawSetOrigin p
+        let setScale s = DrawSetScale s
+        let setOriginBottom = DrawSetOriginBottom
+
+        let setUserCoord xmin xmax ymin ymax =
+            DrawSetUserCoord (xmin, xmax, ymin, ymax)
+
+        let forEach fn plist = DrawForeach (fn, plist)
+
+        let forRange fn xmin xmax step = DrawForRange (fn, (xmin, xmax, step))
+
+        let cmdList xs = DrawList xs
+
+    // /// Draw Command types
+    // module DrawCmdTypes =
+    //     type DrawCmd
+
+
+
+/// Wrapper around Gtk.DrawingArea widget
+///
+module Canvas =
+    module DP = Draw.DrawPrimitives
+    type T = Gtk.DrawingArea
+    type Ctx = Cairo.Context
+
+
+    let getHeight (wdg: T) =
+        wdg.Allocation.Height
+
+    let getWidth (wdg: T) =
+        wdg.Allocation.Width
+
+    /// Create a drawing area object / canvas
+    let canvas(): T =
+        let draw = new Gtk.DrawingArea()
+        draw.AddEvents <| int ( Gdk.EventMask.ButtonPressMask
+                        ||| Gdk.EventMask.ButtonReleaseMask
+                        ||| Gdk.EventMask.KeyPressMask
+                        ||| Gdk.EventMask.PointerMotionMask
+                        )
+        draw
+
+    /// Crate a canvas (aka drawing area) with an update handler
+    //  function
+    //
+    let canvasWithHandler () =
+        let draw = canvas()
+        let updateFn = ref (fun (cr: Ctx) -> ())
+        ignore <| draw.Drawn.Subscribe(fun arg ->
+                                       let cr = arg.Cr
+                                       // Set the coordinate system at bottom left with Y-axis upward
+                                       // from bottom to top and X axis from left to right.
+                                       // DP.setCoordinateBottom draw cr
+                                       cr.MoveTo(0.0, 0.0)
+                                       !updateFn cr
+                                       cr.Stroke()
+                                       )
+
+        let updateDraw handler =
+            updateFn := handler
+            draw.QueueDraw()
+
+        draw, updateDraw
+
+
+    /// Update Drawing Area after the drawing was changed.
+    let update (wdg: T) =
+        App.invoke wdg.QueueDraw
+
+    /// Event that happens when the user moves the mouse (pointer).
+    let onMouseMove (wdg: T) =
+        wdg.MotionNotifyEvent
+        |> Observable.map (fun arg -> arg.Event.X, arg.Event.Y)
+
+    /// Event that happens when the drawing area is update (repainted).
+    let onDraw (wdg: T) =
+        wdg.Drawn
+        |> Observable.map (fun arg -> arg.Cr)
+
+    let onButtonRelease (wdg: T) =
+        wdg.ButtonReleaseEvent
+
+    let onButtonPress (wdg: T) =
+        wdg.ButtonPressEvent
+
         
 module ListStore =
 
@@ -998,11 +1408,36 @@ module WUtils =
             win.ShowAll()
             form
 
-        let put (form: T) (wdg, x, y): unit =
+        let put wdg (x, y) (form: T)  =
             form.Fixed.Put(wdg, x, y)
+            form
+
+        let putSize (wdg: Gtk.Widget) (x, y) (w, h) (form: T) =
+            form.Fixed.Put(wdg, x, y)
+            Wdg.setSize wdg w h
+            form
+
+        let add wdg (form: T) =
+            put wdg (0, 0) form
 
         let addList (form: T) (wdgList: (Gtk.Widget * int * int) list) =
             let fix = form.Fixed
             wdgList |> List.iter (fun (w, x, y) -> fix.Put(w, x, y))
 
+        /// Set backgrund color
+        let setBgColor color (form: T) =
+            Wdg.modifyBg color form.Window
+            form
 
+        let onMouseMove (form: T) =
+            form.EventBox.MotionNotifyEvent |> Observable.map (fun arg -> arg.Event.X, arg.Event.Y)
+
+        /// Add event to exit application if form is destroyed (user click on
+        /// right corner exit button )
+        ///
+        let onDeleteExit (form: T): T =
+            ignore <| form.Window.DeleteEvent.Subscribe(fun _ -> Gtk.Application.Quit())
+            form
+
+        // let onMouseMove (form: T) =
+        //     form.EventBox.Poin
