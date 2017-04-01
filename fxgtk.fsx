@@ -119,35 +119,6 @@ module EventTypes =
         | EventClicked
 
 
-module Signal =
-    open EventTypes
-    
-    type T = Gtk.Widget
-
-    let onDelete (wdg: T) handler =
-        wdg.DeleteEvent.Subscribe(fun arg -> handler arg)
-
-    let onKeyRelease (wdg: T) handler =
-        wdg.KeyReleaseEvent.Subscribe(fun arg -> handler arg)
-    
-    let onClick (wdg: T) handler =
-        match wdg with
-        | :? Gtk.Button as w -> w.Clicked.Subscribe(fun obs -> handler obs)
-        // | :? Gtk.Window as w -> w.Clicked.Subscribe(handler)
-        | _  -> failwith "Error: Not implemented for this widget"
-
-    /// Add event handler to exit application when widget is destroyed.
-    /// It is useful to add this event to the main window.
-    ///
-    let onDeleteExit (wdg: T) =
-        wdg.DeleteEvent.Subscribe(fun _ -> Gtk.Application.Quit ())
-    
-    // let register (widget: T) evt handler =
-    //     match evt with
-    //     | EventDelete  -> widget.DeleteEvent.Subscribe(handler)
-    //     | EventClicked -> let btn = widget :
-
-
 /// Gtk.Application Wrapper module. 
 module App =
     
