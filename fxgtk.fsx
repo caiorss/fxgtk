@@ -1399,11 +1399,36 @@ module WUtils =
             win.ShowAll()
             form
 
-        let put (form: T) (wdg, x, y): unit =
+        let put wdg (x, y) (form: T)  =
             form.Fixed.Put(wdg, x, y)
+            form
+
+        let putSize (wdg: Gtk.Widget) (x, y) (w, h) (form: T) =
+            form.Fixed.Put(wdg, x, y)
+            Wdg.setSize wdg w h
+            form
+
+        let add wdg (form: T) =
+            put wdg (0, 0) form
 
         let addList (form: T) (wdgList: (Gtk.Widget * int * int) list) =
             let fix = form.Fixed
             wdgList |> List.iter (fun (w, x, y) -> fix.Put(w, x, y))
 
+        /// Set backgrund color
+        let setBgColor color (form: T) =
+            Wdg.modifyBg color form.Window
+            form
 
+        let onMouseMove (form: T) =
+            form.EventBox.MotionNotifyEvent |> Observable.map (fun arg -> arg.Event.X, arg.Event.Y)
+
+        /// Add event to exit application if form is destroyed (user click on
+        /// right corner exit button )
+        ///
+        let onDeleteExit (form: T): T =
+            ignore <| form.Window.DeleteEvent.Subscribe(fun _ -> Gtk.Application.Quit())
+            form
+
+        // let onMouseMove (form: T) =
+        //     form.EventBox.Poin
