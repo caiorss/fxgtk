@@ -113,12 +113,6 @@ module Builder =
         builder.GetObject(widgetID) :?> Gtk.TreeView
 
 
-module EventTypes =
-    type Event =
-        | EventDelete
-        | EventClicked
-
-
 /// Gtk.Application Wrapper module. 
 module App =
     
