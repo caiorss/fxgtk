@@ -1015,6 +1015,11 @@ module Draw =
         let setUserCoord xmin xmax ymin ymax =
             DrawSetUserCoord (xmin, xmax, ymin, ymax)
 
+        let forEach fn plist = DrawForeach (fn, plist)
+
+        let forRange fn xmin xmax step = DrawForRange (fn, (xmin, xmax, step))
+
+        let cmdList xs = DrawList xs
 
     // /// Draw Command types
     // module DrawCmdTypes =
