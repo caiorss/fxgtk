@@ -1059,6 +1059,9 @@ module Canvas =
         let updateFn = ref (fun (cr: Ctx) -> ())
         ignore <| draw.Drawn.Subscribe(fun arg ->
                                        let cr = arg.Cr
+                                       // Set the coordinate system at bottom left with Y-axis upward
+                                       // from bottom to top and X axis from left to right.
+                                       // DP.setCoordinateBottom draw cr
                                        cr.MoveTo(0.0, 0.0)
                                        !updateFn cr
                                        cr.Stroke()
