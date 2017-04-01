@@ -892,6 +892,10 @@ module Draw =
 
             | DrawLine   of Point * Point
 
+            | DrawList of DrawCmd list
+            | DrawForeach of (float -> DrawCmd) * float list
+            | DrawForRange of (float -> DrawCmd) * (float * float * float)
+
 
     module DrawCmd =
         module DP = DrawPrimitives
