@@ -845,7 +845,16 @@ module Draw =
             moveTo (xa, ya) ctx
             lineTo (xb, yb) ctx
 
+        let hline (xmin, xmax) y (ctx: T) =
+            ctx.Save()
+            moveTo (xmin, y) ctx 
+            lineTo (xmax, y) ctx
+            ctx.Restore()
 
+        let hlineFull y (canvas: Gtk.DrawingArea) (ctx: T) =
+            hline (0.0, float canvas.AllocatedWidth) y ctx
+
+            
         //  Drawing setting functions
         //----------------------------------------
 
