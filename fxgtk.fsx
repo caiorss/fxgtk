@@ -983,12 +983,12 @@ module Draw =
             | _                      -> failwith "Error: Not implemented"
 
         /// Draw Command interpreter
-        let runCmd (cmdList: DrawCmd seq) (canvas: Gtk.DrawingArea, ctx: Cairo.Context) =
+        let runCmd (cmd: DrawCmd) (canvas: Gtk.DrawingArea, ctx: Cairo.Context) =
             let state = { Scale  = ref (1.0, 1.0)
                         ; Origin = ref (0.0, 0.0)
                         }
             DP.moveTo (applyTransf state (0.0, 0.0)) ctx
-            Seq.iter (runCmdSingle (canvas, ctx) state) cmdList
+            runCmdSingle (canvas, ctx) state cmd
 
 
 
