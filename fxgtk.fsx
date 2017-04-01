@@ -907,13 +907,13 @@ module Draw =
             sx * x + tx, sy * y + ty
 
 
-        let private runCmdSingle (canvas: Gtk.DrawingArea, ctx: Cairo.Context)
-                                 (state: DrawState)
-                                 (cmd: DrawCmd)  =
+        let rec private runCmdSingle (canvas: Gtk.DrawingArea, ctx: Cairo.Context)
+                                     (state: DrawState)
+                                     (cmd: DrawCmd)  =
 
-            printfn "command = %A" cmd
-            printfn "state = %A" state
-            printfn "---------------------------\n\n"
+            // printfn "command = %A" cmd
+            // printfn "state = %A" state
+            // printfn "---------------------------\n\n"
 
             match cmd with
             | DrawSetScale (sx, sy)  -> state.Scale  := (sx, sy)
@@ -967,6 +967,18 @@ module Draw =
                    DP.line pn1 pn2 ctx
 
             | DrawSetFontSzie s      -> DP.setFontSize s ctx
+
+            | DrawForeach (fn, paramlist)
+               -> paramlist |> List.iter (fun p -> runCmdSingle (canvas, ctx) state (fn p))
+
+            | DrawForRange (fn, (xmin, xmax, step))
+               -> for x in [xmin .. step .. xmax] do
+                      runCmdSingle (canvas, ctx) state (fn x)
+
+
+            | DrawList cmdList
+              -> cmdList |> List.iter (runCmdSingle (canvas, ctx) state)
+
 
             | _                      -> failwith "Error: Not implemented"
 
