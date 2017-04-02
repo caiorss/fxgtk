@@ -558,6 +558,12 @@ module Layout =
             | Size    of int * int
             | ShowAll                   // Show widget
 
+            | Expand  of bool
+            | Hexpand of bool
+            | Vexpand of bool
+
+            | Pack of bool * bool
+
             //---- Events -------
             | OnClick  of callback<unit>
             | OnDelete of callback<unit>
@@ -604,6 +610,10 @@ module Layout =
                 | BgColor col  -> Wdg.modifyBg col wdg
                 | ShowAll      -> wdg.ShowAll()
                 | Icon pbuf    -> setIcon wdg pbuf
+
+                | Expand  flag -> wdg.Expand  <- flag
+                | Hexpand flag -> wdg.Hexpand <- flag
+                | Vexpand flag -> wdg.Vexpand <- flag
 
                 | ExitOnDelete -> wdg.DeleteEvent.Add(fun _ -> Gtk.Application.Quit())
                 | OnClick cb   -> setOnClick wdg cb
