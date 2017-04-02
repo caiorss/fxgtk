@@ -588,27 +588,117 @@ module Container =
     let put (fix: Gtk.Fixed) ((wdg, x, y): Gtk.Widget * int * int) =
         fix.Put(wdg, x, y)
 
-    /// Horizontal box container
-    let hbox (conf: LayoutConf) (wdglist: Gtk.Widget list)  =
-        let hbox = new Gtk.HBox(conf.Homon, conf.Space)
-        wdglist |> List.iter (fun w -> hbox.PackStart(w,
-                                                      conf.Expand,
-                                                      conf.Fill,
-                                                      System.Convert.ToUInt32 conf.Padding))
-        hbox 
+/// Gtk Layout combinators
+module Layout =
+    type children = Gtk.Widget list
+
+    type callback<'a>= 'a -> unit
+
+    module Attribute =
+        type WidgetAttribute =
+            | Name    of string
+            | Text    of string
+            | Tooltip of string
+            | BgColor of Gdk.Color
+            | Icon    of Gdk.Pixbuf
+            | Image   of Gdk.Pixbuf
+            | Size    of int * int
+            | ShowAll                   // Show widget
+
+            //---- Events -------
+            | OnClick  of callback<unit>
+            | OnDelete of callback<unit>
+            | OnMouseMove of callback<int * int>
+            | ExitOnDelete
+
+    module Setters =
+        open Attribute
+        let setText (wdg: Gtk.Widget) text =
+            match wdg with
+            | :? Gtk.Window as w   -> w.Title <- text
+            | :? Gtk.Entry as w    -> w.Text  <- text
+            | :? Gtk.Label as w    -> w.Text  <- text
+            | :? Gtk.Button as w   -> w.Label <- text
+            | :? Gtk.TextView as w -> w.Buffer.Text <- text
+            | _                    -> failwith "This property is not valid for this widget"
+
+        let setName (wdg: Gtk.Widget) name =
+            wdg.Name <- name
+
+        let setPixbuf (wdg: Gtk.Widget) image =
+            match wdg with
+            | :? Gtk.Image  as w    -> w.Pixbuf <- image
+            | _                     -> failwith "This property is not valid for this widget"
+
+        let setOnClick (wdg: Gtk.Widget) callback =
+            match wdg with
+            | :? Gtk.Button as w   -> w.Clicked.Add(fun _ -> callback())
+            | _                    -> failwith "This property is not valid for this widget"
+
+        let setIcon (wdg: Gtk.Widget) pbuf =
+            match wdg with
+            | :? Gtk.Window as w -> w.Icon <- pbuf
+            | _                  -> failwith "This property is not valid for this widget"
 
 
-    /// Vertical box container
-    let vbox (conf: LayoutConf) (wdglist: Gtk.Widget list)  =
-        let vbox = new Gtk.VBox(conf.Homon, conf.Space)
-        wdglist |> List.iter (fun w -> vbox.PackStart(w,
-                                                      conf.Expand,
-                                                      conf.Fill,
-                                                      System.Convert.ToUInt32 conf.Padding))
-        vbox 
+        let setAttributes (wdg: Gtk.Widget) (attrlist: WidgetAttribute list) =
+            let aux attr =
+                match attr with
+                | Text s       -> setText wdg s
+                | Name s       -> wdg.Name <- s
+                | Tooltip s    -> wdg.TooltipText <- s
+                | Size (w, h)  -> wdg.SetSizeRequest(w, h)
+                | BgColor col  -> Wdg.modifyBg col wdg
+                | ShowAll      -> wdg.ShowAll()
+                | Icon pbuf    -> setIcon wdg pbuf
+
+                | ExitOnDelete -> wdg.DeleteEvent.Add(fun _ -> Gtk.Application.Quit())
+                | OnClick cb   -> setOnClick wdg cb
+                | _            -> failwith "Error: Not implemented"
+            List.iter aux attrlist
+
+    open Attribute
+    open Setters
+
+    let addChildren (parent: Gtk.Container) (children: children) =
+        List.iter parent.Add children
+
+    let button attrs =
+        let btn = new Gtk.Button(Label = "Button")
+        setAttributes btn attrs
+        btn
+
+    let window attrs (children: Gtk.Widget list) =
+        let win = new Gtk.Window("")
+        addChildren win children
+        setAttributes win attrs
+        win
+
+    let scrolled (child: Gtk.Widget) =
+        let sc = new Gtk.ScrolledWindow()
+        sc.Add(child)
+        sc
+
+    let entry attrs =
+        let wdg = new Gtk.Entry()
+        setAttributes wdg attrs
+        wdg
+
+    let textview attrs =
+        let wdg = new Gtk.TextView()
+        setAttributes wdg attrs
+        wdg
 
 
+    let hbox (ch: children) =
+        let h = new Gtk.HBox()
+        List.iter (fun c -> h.PackStart(c, false, false, 0u)) ch
+        h
 
+    let vbox (ch: children) =
+        let h = new Gtk.VBox()
+        List.iter (fun c -> h.PackStart(c, false, false, 0u)) ch
+        h
 
 
 module Window =
