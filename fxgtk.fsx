@@ -541,55 +541,6 @@ module Entry =
         |> Observable.map (fun _ -> wdg.Text)
 
 
- 
-module LayoutConf =
-    type LayoutConf = {
-           Homon:   bool
-         ; Space:   int 
-         ; Fill:    bool
-         ; Expand:  bool 
-         ; Padding: int 
-        }    
-
-
-
-/// Gtk Containers combinators
-///
-module Container =
-    open LayoutConf
-    
-        
-    let defaultConf  =
-        {Homon   = true;
-         Space   = 1;
-         Fill    = true;
-         Expand  = false;
-         Padding = 0
-         }
-
-    /// Create scrolledwindow
-    let scrolledWindow () =
-        new Gtk.ScrolledWindow()
-
-
-    /// Create fixed container which can position widgets by coordinate.
-    let makeFixed () = new Gtk.Fixed ()
-
-    let fixedItems (itemsList: (#Gtk.Widget * int * int) list) =
-        let fix = new Gtk.Fixed ()
-        itemsList |> List.iter fix.Put ;
-        fix
-
-    /// Position widget with coordinates in a fix container
-    ///
-    /// put (fix: Fixed) (widget, x, y)
-    ///
-    /// Example:
-    ///         > put fixed (entry, 200, 300)
-    ///
-    let put (fix: Gtk.Fixed) ((wdg, x, y): Gtk.Widget * int * int) =
-        fix.Put(wdg, x, y)
-
 /// Gtk Layout combinators
 module Layout =
     type children = Gtk.Widget list
