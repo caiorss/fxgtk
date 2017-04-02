@@ -202,7 +202,7 @@ module Dialog =
         List.iter (setAboutProp about) values
         about
 
-    let infoDialog (message: string) (parent: Gtk.Window)  =
+    let infoDialog (parent: Gtk.Window) (message: string)   =
         let dialog = new Gtk.MessageDialog(parent
                                            ,Gtk.DialogFlags.DestroyWithParent
                                            ,Gtk.MessageType.Info
@@ -212,7 +212,7 @@ module Dialog =
         App.invoke (fun () -> ignore <| dialog.Run () ; dialog.Destroy ())
 
 
-    let warningDialog (message: string) (parent: Gtk.Window)  =
+    let warningDialog (parent: Gtk.Window) (message: string)   =
         let dialog = new Gtk.MessageDialog(parent
                                            ,Gtk.DialogFlags.DestroyWithParent
                                            ,Gtk.MessageType.Warning
@@ -222,7 +222,7 @@ module Dialog =
         App.invoke (fun () -> ignore <| dialog.Run () ; dialog.Destroy ())
 
 
-    let errorDialog (message: string) (parent: Gtk.Window)  =
+    let errorDialog (parent: Gtk.Window) (message: string)   =
         let dialog = new Gtk.MessageDialog(parent
                                            ,Gtk.DialogFlags.DestroyWithParent
                                            ,Gtk.MessageType.Error
@@ -232,7 +232,7 @@ module Dialog =
         App.invoke (fun () -> ignore <| dialog.Run () ; dialog.Destroy ())
 
     /// Question Dialog with Yes and No button
-    let questionDialog (message: string) (parent: Gtk.Window) handler  =
+    let questionDialog (parent: Gtk.Window) (message: string)  handler  =
         let dialog = new Gtk.MessageDialog(parent
                                            ,Gtk.DialogFlags.DestroyWithParent
                                            ,Gtk.MessageType.Question
@@ -247,7 +247,7 @@ module Dialog =
        
 
 
-    let fileChooser (label: string) (path: string option) (win: Gtk.Window) handler   =
+    let fileChooser (win: Gtk.Window) (label: string) (path: string option)  handler   =
 
         let diag = new Gtk.FileChooserDialog(label
                                             ,win
@@ -269,7 +269,7 @@ module Dialog =
 
 
 
-    let folderChooser (label: string) (path: string option) (win: Gtk.Window) handler   =
+    let folderChooser (win: Gtk.Window) (label: string) (path: string option) handler   =
 
         let diag = new Gtk.FileChooserDialog(label
                                             ,win
@@ -422,7 +422,7 @@ module Menu =
     let popup (menu: Gtk.Menu) = menu.Popup()
 
 
-/// Widget Module 
+/// General widget functions.
 ///
 module Wdg =
 
@@ -489,6 +489,7 @@ module Button =
     let click(btn: T) =
         btn.Click()
 
+/// Label Combinators
 module Label =
 
     type T = Gtk.Label
@@ -502,7 +503,7 @@ module Label =
     let setText (lbl: T) text =
         lbl.Text <- text
 
-
+/// Entry Combinators
 module Entry =
 
     type T = Gtk.Entry
@@ -540,74 +541,144 @@ module Entry =
         |> Observable.map (fun _ -> wdg.Text)
 
 
- 
-module LayoutConf =
-    type LayoutConf = {
-           Homon:   bool
-         ; Space:   int 
-         ; Fill:    bool
-         ; Expand:  bool 
-         ; Padding: int 
-        }    
+/// Gtk Layout combinators
+module Layout =
+    type children = Gtk.Widget list
+
+    type callback<'a>= 'a -> unit
+
+    module Attribute =
+        type WidgetAttribute =
+            | Name    of string
+            | Text    of string
+            | Tooltip of string
+            | BgColor of Gdk.Color
+            | Icon    of Gdk.Pixbuf
+            | Image   of Gdk.Pixbuf
+            | Size    of int * int
+            | ShowAll                   // Show widget
+
+            | Expand  of bool
+            | Hexpand of bool
+            | Vexpand of bool
+
+            | Pack of bool * bool
+
+            //---- Events -------
+            | OnClick  of callback<unit>
+            | OnDelete of callback<unit>
+            | OnMouseMove of callback<int * int>
+            | ExitOnDelete
+
+    module private Setters =
+        open Attribute
+        let setText (wdg: Gtk.Widget) text =
+            match wdg with
+            | :? Gtk.Window as w   -> w.Title <- text
+            | :? Gtk.Entry as w    -> w.Text  <- text
+            | :? Gtk.Label as w    -> w.Text  <- text
+            | :? Gtk.Button as w   -> w.Label <- text
+            | :? Gtk.TextView as w -> w.Buffer.Text <- text
+            | _                    -> failwith "This property is not valid for this widget"
+
+        let setName (wdg: Gtk.Widget) name =
+            wdg.Name <- name
+
+        let setPixbuf (wdg: Gtk.Widget) image =
+            match wdg with
+            | :? Gtk.Image  as w    -> w.Pixbuf <- image
+            | _                     -> failwith "This property is not valid for this widget"
+
+        let setOnClick (wdg: Gtk.Widget) callback =
+            match wdg with
+            | :? Gtk.Button as w   -> w.Clicked.Add(fun _ -> callback())
+            | _                    -> failwith "This property is not valid for this widget"
+
+        let setIcon (wdg: Gtk.Widget) pbuf =
+            match wdg with
+            | :? Gtk.Window as w -> w.Icon <- pbuf
+            | _                  -> failwith "This property is not valid for this widget"
 
 
+        let setAttrs (wdg: Gtk.Widget) (attrlist: WidgetAttribute list) =
+            let aux attr =
+                match attr with
+                | Text s       -> setText wdg s
+                | Name s       -> wdg.Name <- s
+                | Tooltip s    -> wdg.TooltipText <- s
+                | Size (w, h)  -> wdg.SetSizeRequest(w, h)
+                | BgColor col  -> Wdg.modifyBg col wdg
+                | ShowAll      -> wdg.ShowAll()
+                | Icon pbuf    -> setIcon wdg pbuf
 
-/// Gtk Containers 
-module Container =
-    open LayoutConf
-    
-        
-    let defaultConf  =
-        {Homon   = true;
-         Space   = 1;
-         Fill    = true;
-         Expand  = false;
-         Padding = 0
-         }
-        
-    /// Create scrolledwindow    
-    let scrolledWindow () =
-        new Gtk.ScrolledWindow()
+                | Expand  flag -> wdg.Expand  <- flag
+                | Hexpand flag -> wdg.Hexpand <- flag
+                | Vexpand flag -> wdg.Vexpand <- flag
 
+                | ExitOnDelete -> wdg.DeleteEvent.Add(fun _ -> Gtk.Application.Quit())
+                | OnClick cb   -> setOnClick wdg cb
+                | _            -> failwith "Error: Not implemented"
+            List.iter aux attrlist
 
-    /// Create fixed container which can position widgets by coordinate.
-    let makeFixed () = new Gtk.Fixed ()
+    open Attribute
+    open Setters
 
-    let fixedItems (itemsList: (#Gtk.Widget * int * int) list) =
-        let fix = new Gtk.Fixed ()
-        itemsList |> List.iter fix.Put ;
-        fix
+    let addChildren (parent: Gtk.Container) (children: children) =
+        List.iter parent.Add children
 
-    /// Position widget with coordinates in a fix container
-    ///
-    /// put (fix: Fixed) (widget, x, y)
-    ///
-    /// Example:
-    ///         > put fixed (entry, 200, 300)
-    ///
-    let put (fix: Gtk.Fixed) ((wdg, x, y): Gtk.Widget * int * int) =
-        fix.Put(wdg, x, y)
+    let button attrs =
+        let btn = new Gtk.Button(Label = "Button")
+        setAttrs btn attrs
+        btn
 
-    /// Horizontal box container
-    let hbox (conf: LayoutConf) (wdglist: Gtk.Widget list)  =
-        let hbox = new Gtk.HBox(conf.Homon, conf.Space)
-        wdglist |> List.iter (fun w -> hbox.PackStart(w,
-                                                      conf.Expand,
-                                                      conf.Fill,
-                                                      System.Convert.ToUInt32 conf.Padding))
-        hbox 
+    let window attrs (children: Gtk.Widget list) =
+        let win = new Gtk.Window("")
+        addChildren win children
+        setAttrs win attrs
+        win
 
+    let scrolled (child: Gtk.Widget) =
+        let sc = new Gtk.ScrolledWindow()
+        sc.Add(child)
+        sc
 
-    /// Vertical box container
-    let vbox (conf: LayoutConf) (wdglist: Gtk.Widget list)  =
-        let vbox = new Gtk.VBox(conf.Homon, conf.Space)
-        wdglist |> List.iter (fun w -> vbox.PackStart(w,
-                                                      conf.Expand,
-                                                      conf.Fill,
-                                                      System.Convert.ToUInt32 conf.Padding))
-        vbox 
+    let entry attrs =
+        let wdg = new Gtk.Entry()
+        setAttrs wdg attrs
+        wdg
 
+    let textview attrs =
+        let wdg = new Gtk.TextView()
+        setAttrs wdg attrs
+        wdg
 
+    let image attrs =
+        let wdg = new Gtk.Image()
+        setAttrs wdg attrs
+        wdg
+
+    /// Pack widget with fill = false and expand = false
+    let pack (wdg: Gtk.Widget) =
+        false, false, wdg
+
+    let pset (expand: bool) (fill: bool) (wdg: Gtk.Widget) =
+        expand, fill, wdg
+
+    /// pack widget with fill = true and expand = true
+    let pfill (wdg: Gtk.Widget) =
+        true, true, wdg
+
+    let hbox chlist =
+        let h = new Gtk.HBox()
+        chlist  |> List.iter (fun (expand, fill, wdg) ->
+                              h.PackStart(wdg, expand, fill, 0u))
+        h
+
+    let vbox chlist =
+        let h = new Gtk.VBox()
+        chlist  |> List.iter (fun (expand, fill, wdg) ->
+                              h.PackStart(wdg, expand, fill, 0u))
+        h
 
 
 
@@ -1262,6 +1333,8 @@ module WUtils =
     let private defaultWidth  = 683
     let private defaultHeight = 397
 
+    /// Window with image widget ready to use. It is useful for
+    /// displaying images and test Gtk Image widget.
     module ImageView =
 
         type ImageView =
@@ -1302,6 +1375,9 @@ module WUtils =
             img.File <- file
             Image.scaleToHeight h img
 
+    /// Window with TextView widget. Useful to display multi line text
+    /// and test GTK TextView widget.
+    ///
     module WText =
 
         type WText =
