@@ -422,7 +422,7 @@ module Menu =
     let popup (menu: Gtk.Menu) = menu.Popup()
 
 
-/// Widget Module 
+/// General widget functions.
 ///
 module Wdg =
 
@@ -489,6 +489,7 @@ module Button =
     let click(btn: T) =
         btn.Click()
 
+/// Label Combinators
 module Label =
 
     type T = Gtk.Label
@@ -502,7 +503,7 @@ module Label =
     let setText (lbl: T) text =
         lbl.Text <- text
 
-
+/// Entry Combinators
 module Entry =
 
     type T = Gtk.Entry
@@ -552,7 +553,8 @@ module LayoutConf =
 
 
 
-/// Gtk Containers 
+/// Gtk Containers combinators
+///
 module Container =
     open LayoutConf
     
