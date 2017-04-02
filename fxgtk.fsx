@@ -567,7 +567,7 @@ module Container =
          Padding = 0
          }
 
-    /// Create scrolledwindow    
+    /// Create scrolledwindow
     let scrolledWindow () =
         new Gtk.ScrolledWindow()
 
@@ -643,7 +643,7 @@ module Layout =
             | _                  -> failwith "This property is not valid for this widget"
 
 
-        let setAttributes (wdg: Gtk.Widget) (attrlist: WidgetAttribute list) =
+        let setAttrs (wdg: Gtk.Widget) (attrlist: WidgetAttribute list) =
             let aux attr =
                 match attr with
                 | Text s       -> setText wdg s
@@ -667,13 +667,13 @@ module Layout =
 
     let button attrs =
         let btn = new Gtk.Button(Label = "Button")
-        setAttributes btn attrs
+        setAttrs btn attrs
         btn
 
     let window attrs (children: Gtk.Widget list) =
         let win = new Gtk.Window("")
         addChildren win children
-        setAttributes win attrs
+        setAttrs win attrs
         win
 
     let scrolled (child: Gtk.Widget) =
@@ -683,12 +683,12 @@ module Layout =
 
     let entry attrs =
         let wdg = new Gtk.Entry()
-        setAttributes wdg attrs
+        setAttrs wdg attrs
         wdg
 
     let textview attrs =
         let wdg = new Gtk.TextView()
-        setAttributes wdg attrs
+        setAttrs wdg attrs
         wdg
 
 
