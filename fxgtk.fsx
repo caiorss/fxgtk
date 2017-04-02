@@ -653,15 +653,29 @@ module Layout =
         wdg
 
 
-    let hbox (ch: children) =
+    /// Pack widget with fill = false and expand = false
+    let pack (wdg: Gtk.Widget) =
+        false, false, wdg
+
+    let pset (expand: bool) (fill: bool) (wdg: Gtk.Widget) =
+        expand, fill, wdg
+
+    /// pack widget with fill = true and expand = true
+    let pfill (wdg: Gtk.Widget) =
+        true, true, wdg
+
+    let hbox chlist =
         let h = new Gtk.HBox()
-        List.iter (fun c -> h.PackStart(c, false, false, 0u)) ch
+        chlist  |> List.iter (fun (expand, fill, wdg) ->
+                              h.PackStart(wdg, expand, fill, 0u))
         h
 
-    let vbox (ch: children) =
+    let vbox chlist =
         let h = new Gtk.VBox()
-        List.iter (fun c -> h.PackStart(c, false, false, 0u)) ch
+        chlist  |> List.iter (fun (expand, fill, wdg) ->
+                              h.PackStart(wdg, expand, fill, 0u))
         h
+
 
 
 module Window =
