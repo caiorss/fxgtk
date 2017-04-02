@@ -652,6 +652,10 @@ module Layout =
         setAttrs wdg attrs
         wdg
 
+    let image attrs =
+        let wdg = new Gtk.Image()
+        setAttrs wdg attrs
+        wdg
 
     /// Pack widget with fill = false and expand = false
     let pack (wdg: Gtk.Widget) =
