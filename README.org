@@ -12,3 +12,19 @@
 ** Build 
 ** Usage and Examples 
 ** Documentation 
+* Todolist 
+
+ - [ ] Create convenient layout combinator functions. - Goal: Build small
+   Gtk GUIs in a functional way like ELM.
+
+ - [ ] Create a javadoc-like documentation. Find a suitable
+   documentation generator.
+
+ - [ ] Add as much examples as possible.
+
+ - [ ] Make data visualization easy and simple.
+
+ - [ ] Publish in NuGet package respository
+
+ - [ ] Initial documentation should contain main functions and
+   widgets. 
