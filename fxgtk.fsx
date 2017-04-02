@@ -566,7 +566,7 @@ module Container =
          Expand  = false;
          Padding = 0
          }
-        
+
     /// Create scrolledwindow    
     let scrolledWindow () =
         new Gtk.ScrolledWindow()
@@ -1354,6 +1354,8 @@ module WUtils =
     let private defaultWidth  = 683
     let private defaultHeight = 397
 
+    /// Window with image widget ready to use. It is useful for
+    /// displaying images and test Gtk Image widget.
     module ImageView =
 
         type ImageView =
@@ -1394,6 +1396,9 @@ module WUtils =
             img.File <- file
             Image.scaleToHeight h img
 
+    /// Window with TextView widget. Useful to display multi line text
+    /// and test GTK TextView widget.
+    ///
     module WText =
 
         type WText =
