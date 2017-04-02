@@ -564,7 +564,7 @@ module Layout =
             | OnMouseMove of callback<int * int>
             | ExitOnDelete
 
-    module Setters =
+    module private Setters =
         open Attribute
         let setText (wdg: Gtk.Widget) text =
             match wdg with
