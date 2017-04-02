@@ -202,7 +202,7 @@ module Dialog =
         List.iter (setAboutProp about) values
         about
 
-    let infoDialog (message: string) (parent: Gtk.Window)  =
+    let infoDialog (parent: Gtk.Window) (message: string)   =
         let dialog = new Gtk.MessageDialog(parent
                                            ,Gtk.DialogFlags.DestroyWithParent
                                            ,Gtk.MessageType.Info
@@ -212,7 +212,7 @@ module Dialog =
         App.invoke (fun () -> ignore <| dialog.Run () ; dialog.Destroy ())
 
 
-    let warningDialog (message: string) (parent: Gtk.Window)  =
+    let warningDialog (parent: Gtk.Window) (message: string)   =
         let dialog = new Gtk.MessageDialog(parent
                                            ,Gtk.DialogFlags.DestroyWithParent
                                            ,Gtk.MessageType.Warning
@@ -222,7 +222,7 @@ module Dialog =
         App.invoke (fun () -> ignore <| dialog.Run () ; dialog.Destroy ())
 
 
-    let errorDialog (message: string) (parent: Gtk.Window)  =
+    let errorDialog (parent: Gtk.Window) (message: string)   =
         let dialog = new Gtk.MessageDialog(parent
                                            ,Gtk.DialogFlags.DestroyWithParent
                                            ,Gtk.MessageType.Error
@@ -232,7 +232,7 @@ module Dialog =
         App.invoke (fun () -> ignore <| dialog.Run () ; dialog.Destroy ())
 
     /// Question Dialog with Yes and No button
-    let questionDialog (message: string) (parent: Gtk.Window) handler  =
+    let questionDialog (parent: Gtk.Window) (message: string)  handler  =
         let dialog = new Gtk.MessageDialog(parent
                                            ,Gtk.DialogFlags.DestroyWithParent
                                            ,Gtk.MessageType.Question
@@ -247,7 +247,7 @@ module Dialog =
        
 
 
-    let fileChooser (label: string) (path: string option) (win: Gtk.Window) handler   =
+    let fileChooser (win: Gtk.Window) (label: string) (path: string option)  handler   =
 
         let diag = new Gtk.FileChooserDialog(label
                                             ,win
@@ -269,7 +269,7 @@ module Dialog =
 
 
 
-    let folderChooser (label: string) (path: string option) (win: Gtk.Window) handler   =
+    let folderChooser (win: Gtk.Window) (label: string) (path: string option) handler   =
 
         let diag = new Gtk.FileChooserDialog(label
                                             ,win
