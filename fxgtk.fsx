@@ -549,15 +549,17 @@ module Layout =
 
     module Attribute =
         type WidgetAttribute =
-            | Name    of string
-            | Text    of string
+            | Name    of string         // Widget Unique ID 
+            | Text    of string         
             | Tooltip of string
-            | BgColor of Gdk.Color
-            | Icon    of Gdk.Pixbuf
-            | Image   of Gdk.Pixbuf
-            | Size    of int * int
+            | BgColor of Gdk.Color      // Widget Background Color 
+            | Icon    of Gdk.Pixbuf     // Window Icon 
+            | Image   of Gdk.Pixbuf 
+            | Size    of int * int      // Widget Size  
             | ShowAll                   // Show widget
 
+            | Resizable of bool         // If true the window is resizable.
+            
             | Expand  of bool
             | Hexpand of bool
             | Vexpand of bool
@@ -597,25 +599,29 @@ module Layout =
             | :? Gtk.Window as w -> w.Icon <- pbuf
             | _                  -> failwith "This property is not valid for this widget"
 
+        let setResizable (wdg: Gtk.Widget) flag =
+            match wdg with
+            | :? Gtk.Window as w -> w.Resizable <- flag
+            | _                  -> failwith "This property is not valid for this widget"
 
         let setAttrs (wdg: Gtk.Widget) (attrlist: WidgetAttribute list) =
             let aux attr =
                 match attr with
-                | Text s       -> setText wdg s
-                | Name s       -> wdg.Name <- s
-                | Tooltip s    -> wdg.TooltipText <- s
-                | Size (w, h)  -> wdg.SetSizeRequest(w, h)
-                | BgColor col  -> Wdg.modifyBg col wdg
-                | ShowAll      -> wdg.ShowAll()
-                | Icon pbuf    -> setIcon wdg pbuf
+                | Text s         -> setText wdg s
+                | Name s         -> wdg.Name <- s
+                | Tooltip s      -> wdg.TooltipText <- s
+                | Size (w, h)    -> wdg.SetSizeRequest(w, h)
+                | BgColor col    -> Wdg.modifyBg col wdg
+                | ShowAll        -> wdg.ShowAll()
+                | Icon pbuf      -> setIcon wdg pbuf
+                | Resizable flag -> setResizable wdg flag 
+                | Expand  flag   -> wdg.Expand  <- flag
+                | Hexpand flag   -> wdg.Hexpand <- flag
+                | Vexpand flag   -> wdg.Vexpand <- flag
 
-                | Expand  flag -> wdg.Expand  <- flag
-                | Hexpand flag -> wdg.Hexpand <- flag
-                | Vexpand flag -> wdg.Vexpand <- flag
-
-                | ExitOnDelete -> wdg.DeleteEvent.Add(fun _ -> Gtk.Application.Quit())
-                | OnClick cb   -> setOnClick wdg cb
-                | _            -> failwith "Error: Not implemented"
+                | ExitOnDelete   -> wdg.DeleteEvent.Add(fun _ -> Gtk.Application.Quit())
+                | OnClick cb     -> setOnClick wdg cb
+                | _              -> failwith "Error: Not implemented"
             List.iter aux attrlist
 
     open Attribute
