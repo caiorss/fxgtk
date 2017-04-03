@@ -1169,6 +1169,40 @@ module ListStore =
     let addRow (lstore: Gtk.ListStore) row =
         lstore.AppendValues(row)
 
+    let getIterIndex (lstore: T) path =
+        let p = new Gtk.TreePath([| path |])
+        let titer = ref Unchecked.defaultof<Gtk.TreeIter>
+        let resp = lstore.GetIter(titer, p)
+        match resp with
+        | false -> None
+        | true  -> Some !titer 
+        
+        
+    let getIterFromString (lstore: T) path =
+        let titer = ref Unchecked.defaultof<Gtk.TreeIter>
+        let resp = lstore.GetIterFromString(titer, path)
+        match resp with
+        | false -> None
+        | true  -> Some !titer 
+
+    let getValue (lstore: T) row col =
+        let n = lstore.NColumns
+        let iter = getIterIndex lstore row 
+        match col, iter with
+        | _  when col >= n || col < 0  -> None  
+        | _, None                      -> None
+        | k, Some i                    -> Some <| lstore.GetValue(i, col)
+
+    let setValue (lstore: T) row col (value: obj) =
+        let iter = getIterIndex lstore row
+        let n = lstore.NColumns
+        match col, iter with
+        | _  when col >= n || col < 0  -> false
+        | _, None                      -> false
+        | k, Some i                    -> lstore.SetValue(i, col, value)
+                                          true
+                                          
+        
     /// Get number of columns
     let getNcolumns (lstore: T) =
         lstore.NColumns
@@ -1187,6 +1221,17 @@ module ListStore =
                        aux <| (row::acc)
         aux []
 
+
+    let getRow (lstore: T) row =
+        let n = lstore.NColumns
+        [for col = 0 to n - 1 do yield getValue lstore row col ]
+
+    let setRow (lstore: T) row rowValues =
+        let titer = getIterIndex lstore row
+        match titer with
+        | None    -> false
+        | Some i  -> lstore.SetValues(i, rowValues); true 
+
     /// Get the nth column
     let getColumn<'a> (lstore: T) col  =
         let enum = lstore.GetEnumerator()
@@ -1200,7 +1245,9 @@ module ListStore =
                        aux <| (elem::acc)
         aux []
 
-
+    let setColumn (lstore: T) col values =
+        values |> List.iteri (fun row item -> ignore <| setValue lstore row col item)
+    
     /// Clear ListStore, remove all columns.
     let clear (lstore: T) =
         lstore.Clear()
