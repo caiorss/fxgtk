@@ -1177,6 +1177,16 @@ module ListStore =
     let getColumnType (lstore: T) col =
         lstore.GetColumnType col
 
+    /// Get all rows
+    let getRows (lstore: T) =
+        let enum = lstore.GetEnumerator()
+        let rec aux acc =
+            match enum.MoveNext () with
+            | false -> List.rev acc
+            | true  -> let row = enum.Current :?> obj []
+                       aux <| (row::acc)
+        aux []
+
     /// Clear ListStore, remove all columns.
     let clear (lstore: T) =
         lstore.Clear()
