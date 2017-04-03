@@ -1352,8 +1352,8 @@ module TreeView =
     //========== Events ================= //
 
 
-    let onChanged (tview: Gtk.TreeView) (handler: unit -> unit) : System.IDisposable =
-        tview.Selection.Changed.Subscribe(fun _ -> handler ())
+    let onChanged (tview: Gtk.TreeView) =
+        tview.Selection.Changed
 
 
     //========== Getters  ================= //
