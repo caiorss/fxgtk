@@ -1224,6 +1224,9 @@ module TreeView =
     let cellRendererCombo () =
         new Gtk.CellRendererCombo()
 
+    /// Get TreeView model as ListStore.
+    let getModel (tview: Gtk.TreeView) = tview.Model :?> Gtk.ListStore
+
 
     let addRow (tview: Gtk.TreeView) row =
         let m = tview.Model :?> Gtk.ListStore
