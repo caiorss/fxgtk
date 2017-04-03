@@ -562,8 +562,6 @@ module Layout =
             | Hexpand of bool
             | Vexpand of bool
 
-            | Pack of bool * bool
-
             //---- Events -------
             | OnClick  of callback<unit>
             | OnDelete of callback<unit>
