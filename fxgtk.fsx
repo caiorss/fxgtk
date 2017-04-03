@@ -1153,6 +1153,7 @@ module Canvas =
 
         
 module ListStore =
+    type T = Gtk.ListStore
 
     /// Create new ListStore object
     ///
@@ -1167,6 +1168,19 @@ module ListStore =
     /// Add a row of values to ListStore
     let addRow (lstore: Gtk.ListStore) row =
         lstore.AppendValues(row)
+
+    /// Get number of columns
+    let getNcolumns (lstore: T) =
+        lstore.NColumns
+
+    /// Get type of nth column
+    let getColumnType (lstore: T) col =
+        lstore.GetColumnType col
+
+    /// Clear ListStore, remove all columns.
+    let clear (lstore: T) =
+        lstore.Clear()
+
 
 
 
