@@ -1187,6 +1187,20 @@ module ListStore =
                        aux <| (row::acc)
         aux []
 
+    /// Get the nth column
+    let getColumn<'a> (lstore: T) col  =
+        let enum = lstore.GetEnumerator()
+        let rec aux acc =
+            match enum.MoveNext () with
+            | false -> List.rev acc
+            | true  -> let elem = enum.Current
+                                 :?> obj []
+                                 |>  Array.item col
+                                 :?> 'a
+                       aux <| (elem::acc)
+        aux []
+
+
     /// Clear ListStore, remove all columns.
     let clear (lstore: T) =
         lstore.Clear()
