@@ -626,6 +626,12 @@ module Layout =
     let addChildren (parent: Gtk.Container) (children: children) =
         List.iter parent.Add children
 
+
+    let label attrs =
+        let lbl = new Gtk.Label()
+        setAttrs lbl attrs
+        lbl
+
     let button attrs =
         let btn = new Gtk.Button(Label = "Button")
         setAttrs btn attrs
