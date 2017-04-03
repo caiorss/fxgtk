@@ -686,6 +686,12 @@ module Layout =
                               h.PackStart(wdg, expand, fill, 0u))
         h
 
+    let phbox chlist =
+        pack <| hbox chlist
+
+    let pvbox chlist =
+        pack <| vbox chlist
+
 
 
 module Window =
