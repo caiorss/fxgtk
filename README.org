@@ -1,15 +1,41 @@
-#+TITLE: FsxGtk - High Level F# Wrapper for Gtk 
+#+TITLE: FxGtk - High Level F# Wrapper for Gtk 
+#+DESCRIPTION: gtk F# fsharp .net mono gui ui 
 #+STARTUP: showall 
 
-* FsxGtk 
+* FxGtk 
 ** Overview 
 **** What is it 
-**** Description 
+
+FxGtk is a high level F# wrapper library for GTK# (GTK Sharp) that
+allows the developer to create Gtk Graphical User Interfaces in a
+functional way and in a F# friendly manner. 
+
 **** Features 
+
+ - Abstract over GTK# implementation details.
+
+ - Combinators (functions) to create and manipulate widgets.
+
+ - Layout combinators - functions to create GUI layout in declarative
+   way.
+
+ - Useful dialogs to display data such as dialog to display images and text.
+
+ - REPL friendly.
+
+ - (|>) Pipe friendly.
+
 **** Advantages 
-**** Compatibility 
 **** Repository 
+
+ - https://www.github.com/caiorss/fxgtk
+
 ** Build 
+*** Dependencies 
+
+FxGtk dependencies are Gtk-Sharp and Gtk3. 
+
+*** Build Instructions 
 ** Usage and Examples 
 ** Documentation 
 * Todolist 
