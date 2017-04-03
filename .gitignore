@@ -6,3 +6,7 @@
 *.o
 *~
 ~*
+/fxgtk.xml
+*.zip
+*.tar.gz
+*.html
