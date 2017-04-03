@@ -7,7 +7,7 @@ GTK_HOME   := /usr/lib/mono/gtk-sharp-3.0/
 # --> Library building settins 
 lib    := fxgtk.dll 
 libxml := fxgtk.xml 
-libsrc := fxgtk.fsx
+libsrc := src/fxgtk.fsx
 
 
 # --> App building settings 
@@ -39,4 +39,4 @@ $(app): lib
 	$(FSC) $(appsrc) --out:$(app) --target:winexe $(REFS) -r:$(lib)
 
 clean:
-	rm -rf $(lib)
+	rm -rf $(lib) $(libxml)
