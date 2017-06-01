@@ -1586,3 +1586,43 @@ module WUtils =
 
         // let onMouseMove (form: T) =
         //     form.EventBox.Poin
+
+
+
+/// Model for MVC (Model - View - Controller)
+/// with observer pattern
+///
+module FModel = 
+
+    type Model<'a> = {
+        State:     'a ref 
+       ;OnChanged:  Event<'a>
+        }
+    
+    /// Create a new model 
+    let make (init: 'a) =
+        { State     = ref init
+        ; OnChanged = new Event<'a>()
+        }
+
+    /// Update Model state and notify all observers.
+    let update (m: Model<'a>) (value: 'a) =
+        m.State := value
+        m.OnChanged.Trigger value
+
+    /// Notify all observers with current model state    
+    let trigger (m: Model<'a>) =
+        m.OnChanged.Trigger !m.State
+
+    /// Apply a function to model state and notify all observers
+    let apply (m: Model<'a>) (fn: 'a -> 'a) =
+        m.State := fn(!m.State)
+        m.OnChanged.Trigger !m.State 
+        
+    /// Subscribe to model updates 
+    let subscribe (m: Model<'a>) fn =
+        m.OnChanged.Publish.Add(fn)
+
+    /// Add a console view to model 
+    let addLogger (m: Model<'a>) =
+        m.OnChanged.Publish.Add(fun s -> printfn "Model changed to = %A" s)
