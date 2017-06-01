@@ -10,3 +10,6 @@
 *.zip
 *.tar.gz
 *.html
+#*
+*#
+packages/*
