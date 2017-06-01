@@ -291,6 +291,31 @@ module Dialog =
                     )
 
 
+type DialogUtils =
+
+    static member run(diag: Gtk.Dialog) =
+        ignore <| diag.Run()
+        diag.Destroy()
+
+    static member fileChooser(win: Gtk.Window, label: string, handler) =
+        Gdk.Threads.Init ()
+        Gdk.Threads.Enter()
+        let diag = new Gtk.FileChooserDialog(label
+                                            ,win
+                                            ,Gtk.FileChooserAction.Open
+                                            ,"Cancel"
+                                            ,Gtk.ResponseType.Cancel
+                                            ,"Open"
+                                            ,Gtk.ResponseType.Accept
+                                            )
+        diag.CanDefault <- true
+        if diag.Run () = int Gtk.ResponseType.Accept
+        then handler <| Some diag.Filename
+        else handler None
+        //diag.Destroy()
+        Gdk.Threads.Leave()
+
+
 
 module TextView =
 
