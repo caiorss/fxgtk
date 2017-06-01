@@ -1610,6 +1610,10 @@ module FModel =
         m.State := value
         m.OnChanged.Trigger value
 
+    /// Get model state     
+    let get (m: Model<'a>) =
+        !m.State
+
     /// Notify all observers with current model state    
     let trigger (m: Model<'a>) =
         m.OnChanged.Trigger !m.State
