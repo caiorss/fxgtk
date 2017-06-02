@@ -98,15 +98,17 @@ let buildExample example =
     let outputFile = example |> SysUtils.joinPath "bin/"
                              |> SysUtils.replaceExt "exe"
 
-    printfn "Building Example: %s" example
+    printfn "Building Example: %s\n" example
 
-    FsharpCompiler.CompileExecutableWEXE(
-        [SysUtils.joinPath "examples/" example]
-        ,["bin/fxgtk.dll"] @ gtkDependencies
-        ,outputFile
-        )
+    let status = FsharpCompiler.CompileExecutableWEXE([SysUtils.joinPath "examples/" example]
+                                                      ,["bin/fxgtk.dll"] @ gtkDependencies
+                                                      ,outputFile
+                                                      )
 
-    printfn "Example %s build. Ok"  outputFile
+    match status with
+    | 0 -> printfn "\nBuild %s successful. Ok"  outputFile
+    | _ -> printfn "\nBuild %s Failed." outputFile
+    printfn "-------------------------------------\n\n"
 
 
 let getExamples () =
