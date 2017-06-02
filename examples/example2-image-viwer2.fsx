@@ -4,7 +4,7 @@
 #r "/usr/lib/mono/gtk-sharp-3.0/glib-sharp.dll"
 #r "/usr/lib/mono/gtk-sharp-3.0/gtk-sharp.dll"
 #r "/usr/lib/mono/gtk-sharp-3.0/gdk-sharp.dll"
-#r "../fxgtk.dll"
+#r "../bin/fxgtk.dll"
 #endif
 
 
@@ -79,14 +79,15 @@ let args = System.Environment.GetCommandLineArgs()
           |> List.ofArray
           |> List.tail 
 
-let chooseDirectory () = 
-    Dialog.folderChooser window
-                         "Choose a directory"
-                         None
-                         (fun path -> match path with
-                                      | None   -> App.exit ()
-                                      | Some p -> startModel p
-                          )
+let chooseDirectory () =
+    let path = Dialog.dirChooser(window
+                                 ,"Choose a directory"
+                                 ,Some "~"
+                                 )         
+    match path with
+    | None   -> App.exit ()
+    | Some p -> startModel p
+    
 
 
 let setClipboard text =
