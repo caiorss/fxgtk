@@ -175,6 +175,15 @@ let runArgs args =
     | cmd -> printfn "Error: Invalid command: %A" cmd
 
 
+#if INTERACTIVE
 
 let () =
     runArgs <| SysUtils.getCommandLineArgs() 
+#else
+
+[<EntryPoint>]
+let main(args) =
+    runArgs <| List.ofArray args
+    1
+
+#endif
