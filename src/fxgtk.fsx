@@ -230,7 +230,7 @@ type Dialog =
         out
 
         
-    static member infoDialog (parent: Gtk.Window, message: string)   =
+    static member infoDialog (parent: Gtk.Window) (message: string)   =
         let dialog = new Gtk.MessageDialog(parent
                                            ,Gtk.DialogFlags.DestroyWithParent
                                            ,Gtk.MessageType.Info
