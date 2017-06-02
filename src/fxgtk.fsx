@@ -3,7 +3,7 @@
 (* Compile with: 
   -------------------------------------------------------
                                                           
-$ fsc fxgtk.fsx --target:winexe --out:fxgtk-app.exe \
+$ fsc fxgtk.fsx --target:library --out:fxgtk.dll \
     -r:/usr/lib/mono/gtk-sharp-3.0/atk-sharp.dll    \
     -r:/usr/lib/mono/gtk-sharp-3.0/gio-sharp.dll    \
     -r:/usr/lib/mono/gtk-sharp-3.0/glib-sharp.dll   \
