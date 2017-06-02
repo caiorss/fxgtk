@@ -73,6 +73,17 @@ type FsharpCompiler =
         SysUtils.runShellCmd "fsharpc" args 
 
 
+    static member CompileExecutable(source: string, ?output) =
+        let output = defaultArg output (SysUtils.replaceExt "exe" source)
+        let args = [ source
+                   ; "--target:exe"
+                   ; "--out:" + output
+                   ; "--debug+"
+                   ; "--nologo"
+                   ]
+        SysUtils.runShellCmd "fsharpc" args
+
+
     static member CompileExecutableWEXE( sources:      string list 
                                         ,dependencies: string list 
                                         ,output                             
