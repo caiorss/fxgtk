@@ -84,12 +84,15 @@ type FsharpCompiler =
 
 
 let buildLib () =
-    FsharpCompiler.CompileLibrary(
-        ["src/fxgtk.fsx"]
-        ,gtkDependencies
-        ,"bin/fxgtk.dll"
-        ,"bin/fxgtk.xml"
-        )
+    let status = FsharpCompiler.CompileLibrary(["src/fxgtk.fsx"]
+                                               ,gtkDependencies
+                                               ,"bin/fxgtk.dll"
+                                               ,"bin/fxgtk.xml"
+                                               )
+
+    match status with
+    | 0 -> printfn "Build successful. Ok"
+    | _ -> printfn "Build failed"
 
 let buildExample example =
     let outputFile = example |> SysUtils.joinPath "bin/"
