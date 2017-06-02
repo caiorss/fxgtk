@@ -165,7 +165,7 @@ module App =
         Gtk.Application.Invoke(hnd)
 
 
-type DialogUtils =
+type Dialog =
 
     static member run(diag: Gtk.Dialog) =
         ignore <| diag.Run()
