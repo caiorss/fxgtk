@@ -53,7 +53,9 @@ type FsharpCompiler =
         let args = [ String.Join(" ", sources)
                    ; "--target:library"
                    ; "--out:" + output
-                   ; "--doc:" + doc                  
+                   ; "--doc:" + doc
+                   ; "--debug+"
+                   ; "--nologo"
                    ; String.Join(" ", dependencies |> List.map (fun s -> "-r:" + s))
                    ]
 
@@ -68,7 +70,9 @@ type FsharpCompiler =
 
         let args = [ String.Join(" ", sources)
                    ; "--target:winexe"
-                   ; "--out:" + output              
+                   ; "--out:" + output
+                   ; "--debug+"
+                   ; "--nologo"
                    ; String.Join(" ", dependencies |> List.map (fun s -> "-r:" + s))
                    ]
 
