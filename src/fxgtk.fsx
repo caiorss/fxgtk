@@ -165,44 +165,72 @@ module App =
         Gtk.Application.Invoke(hnd)
 
 
-module Dialog =
+type Dialog =
 
-    /// Run dialog.
-    let run (dialog: Gtk.Dialog) =
-        ignore <| dialog.Run () ;
-        dialog.Destroy ()
-
+    static member run(diag: Gtk.Dialog) =
+        ignore <| diag.Run()
+        diag.Destroy()
 
     /// Run dialog safely when the Gtk event loop is running
     /// in a background thread.
     ///
-    let runInter (dialog: Gtk.Dialog) =
+    static member runInter (dialog: Gtk.Dialog) =
         App.invoke(fun () -> ignore <| dialog.Run())
 
-    module AboutTypes =
-        type AboutTypes =
-            | AboutProgramName    of string
-            | AboutProgramVersion of string
-            | AboutCopyright      of string
-            | AboutComments       of string
-            | AboutWebsite        of string
+    static member fileChooser(win: Gtk.Window, label: string) =        
+        let diag = new Gtk.FileChooserDialog(label
+                                            ,win
+                                            ,Gtk.FileChooserAction.Open
+                                            ,"Cancel"
+                                            ,Gtk.ResponseType.Cancel
+                                            ,"Open"
+                                            ,Gtk.ResponseType.Accept
+                                            )
+        diag.CanDefault <- true
+        let out = if diag.Run () = int Gtk.ResponseType.Accept
+                  then Some diag.Filename
+                  else None
+        diag.Destroy()
+        out 
+        
+    static member fileChooser(label: string) =
+        let win  = new Gtk.Window("")
+        let diag = new Gtk.FileChooserDialog(label
+                                            ,win
+                                            ,Gtk.FileChooserAction.Open
+                                            ,"Cancel"
+                                            ,Gtk.ResponseType.Cancel
+                                            ,"Open"
+                                            ,Gtk.ResponseType.Accept
+                                            )
+        diag.CanDefault <- true
+        let out = if diag.Run () = int Gtk.ResponseType.Accept
+                  then Some diag.Filename
+                  else None
+        diag.Destroy()
+        win.Destroy()
+        out 
 
-    let private setAboutProp (about: Gtk.AboutDialog) prop =
-        match prop with
-        | AboutTypes.AboutProgramName v    -> about.ProgramName  <- v
-        | AboutTypes.AboutProgramVersion v -> about.Version      <- v
-        | AboutTypes.AboutCopyright v      -> about.Copyright    <- v
-        | AboutTypes.AboutComments v       -> about.Comments     <- v
-        | AboutTypes.AboutWebsite v        -> about.Website      <- v
-     //   | _                     -> failwith "Error: Not implemented."
+    static member dirChooser (win: Gtk.Window, label: string, path: string option) =
+        let diag = new Gtk.FileChooserDialog(label
+                                            ,win
+                                            ,Gtk.FileChooserAction.Open
+                                            ,"Cancel"
+                                            ,Gtk.ResponseType.Cancel
+                                            ,"Open"
+                                            ,Gtk.ResponseType.Accept
+                                            )
+        diag.Action <- Gtk.FileChooserAction.SelectFolder
+        Option.iter (fun p -> ignore <| diag.SetCurrentFolder p) path
+        diag.CanDefault <- true
+        let out = if diag.Run () = int Gtk.ResponseType.Accept
+                  then Some diag.Filename
+                  else None
+        diag.Destroy()
+        out
 
-
-    let aboutDialog values =
-        let about = new Gtk.AboutDialog()
-        List.iter (setAboutProp about) values
-        about
-
-    let infoDialog (parent: Gtk.Window) (message: string)   =
+        
+    static member infoDialog (parent: Gtk.Window) (message: string)   =
         let dialog = new Gtk.MessageDialog(parent
                                            ,Gtk.DialogFlags.DestroyWithParent
                                            ,Gtk.MessageType.Info
@@ -212,7 +240,7 @@ module Dialog =
         App.invoke (fun () -> ignore <| dialog.Run () ; dialog.Destroy ())
 
 
-    let warningDialog (parent: Gtk.Window) (message: string)   =
+    static member warningDialog (parent: Gtk.Window) (message: string)   =
         let dialog = new Gtk.MessageDialog(parent
                                            ,Gtk.DialogFlags.DestroyWithParent
                                            ,Gtk.MessageType.Warning
@@ -222,7 +250,7 @@ module Dialog =
         App.invoke (fun () -> ignore <| dialog.Run () ; dialog.Destroy ())
 
 
-    let errorDialog (parent: Gtk.Window) (message: string)   =
+    static member errorDialog (parent: Gtk.Window) (message: string)   =
         let dialog = new Gtk.MessageDialog(parent
                                            ,Gtk.DialogFlags.DestroyWithParent
                                            ,Gtk.MessageType.Error
@@ -232,7 +260,7 @@ module Dialog =
         App.invoke (fun () -> ignore <| dialog.Run () ; dialog.Destroy ())
 
     /// Question Dialog with Yes and No button
-    let questionDialog (parent: Gtk.Window) (message: string)  handler  =
+    static member questionDialog (parent: Gtk.Window) (message: string)  handler  =
         let dialog = new Gtk.MessageDialog(parent
                                            ,Gtk.DialogFlags.DestroyWithParent
                                            ,Gtk.MessageType.Question
@@ -245,76 +273,6 @@ module Dialog =
 
                     )
        
-
-
-    let fileChooser (win: Gtk.Window) (label: string) (path: string option)  handler   =
-
-        let diag = new Gtk.FileChooserDialog(label
-                                            ,win
-                                            ,Gtk.FileChooserAction.Open
-                                            ,"Cancel"
-                                            ,Gtk.ResponseType.Cancel
-                                            ,"Open"
-                                            ,Gtk.ResponseType.Accept
-                                            )
-
-        Option.iter (fun p -> ignore <| diag.SetCurrentFolder p) path
-        diag.CanDefault <- true
-
-        App.invoke (fun () -> if diag.Run () = int Gtk.ResponseType.Accept
-                              then handler <| Some diag.Filename
-                              else handler None
-                              diag.Destroy()
-                    )
-
-
-
-    let folderChooser (win: Gtk.Window) (label: string) (path: string option) handler   =
-
-        let diag = new Gtk.FileChooserDialog(label
-                                            ,win
-                                            ,Gtk.FileChooserAction.Open
-                                            ,"Cancel"
-                                            ,Gtk.ResponseType.Cancel
-                                            ,"Open"
-                                            ,Gtk.ResponseType.Accept
-                                            )
-        diag.Action <- Gtk.FileChooserAction.SelectFolder
-
-        Option.iter (fun p -> ignore <| diag.SetCurrentFolder p) path
-        diag.CanDefault <- true
-
-        App.invoke (fun () -> if diag.Run () = int Gtk.ResponseType.Accept
-                              then handler <| Some diag.Filename
-                              else handler None
-                              diag.Destroy()
-                    )
-
-
-type DialogUtils =
-
-    static member run(diag: Gtk.Dialog) =
-        ignore <| diag.Run()
-        diag.Destroy()
-
-    static member fileChooser(win: Gtk.Window, label: string, handler) =
-        Gdk.Threads.Init ()
-        Gdk.Threads.Enter()
-        let diag = new Gtk.FileChooserDialog(label
-                                            ,win
-                                            ,Gtk.FileChooserAction.Open
-                                            ,"Cancel"
-                                            ,Gtk.ResponseType.Cancel
-                                            ,"Open"
-                                            ,Gtk.ResponseType.Accept
-                                            )
-        diag.CanDefault <- true
-        if diag.Run () = int Gtk.ResponseType.Accept
-        then handler <| Some diag.Filename
-        else handler None
-        //diag.Destroy()
-        Gdk.Threads.Leave()
-
 
 
 module TextView =
