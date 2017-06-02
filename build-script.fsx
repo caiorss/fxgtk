@@ -96,6 +96,12 @@ let buildExample example =
         ,outputFile
         )
 
+    printfn "Example %s build. Ok"  outputFile
+
+
+let getExamples () =
+    SysUtils.getFilesExt "examples" "*.fsx"
+    |> Seq.map SysUtils.baseName
 
 let runArgs args =
     match args with
