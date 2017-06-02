@@ -85,10 +85,15 @@ let buildLib () =
         )
 
 let buildExample example =
+    let outputFile = example |> SysUtils.joinPath "bin/"
+                             |> SysUtils.replaceExt "exe"
+
+    printfn "Building Example: %s" example
+
     FsharpCompiler.CompileExecutableWEXE(
         [SysUtils.joinPath "examples/" example]
         ,["bin/fxgtk.dll"] @ gtkDependencies
-        , example |> SysUtils.joinPath "bin/" |> SysUtils.replaceExt "exe" 
+        ,outputFile
         )
 
 
