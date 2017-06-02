@@ -167,6 +167,10 @@ module App =
 
 type Dialog =
 
+    /// Get user profile directory
+    static member private getUserDir () =
+        System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile)
+
     static member run(diag: Gtk.Dialog) =
         ignore <| diag.Run()
         diag.Destroy()
