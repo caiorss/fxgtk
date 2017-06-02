@@ -181,23 +181,13 @@ type Dialog =
     static member runInter (dialog: Gtk.Dialog) =
         App.invoke(fun () -> ignore <| dialog.Run())
 
-    static member fileChooser(win: Gtk.Window, label: string) =        
-        let diag = new Gtk.FileChooserDialog(label
-                                            ,win
-                                            ,Gtk.FileChooserAction.Open
-                                            ,"Cancel"
-                                            ,Gtk.ResponseType.Cancel
-                                            ,"Open"
-                                            ,Gtk.ResponseType.Accept
-                                            )
-        diag.CanDefault <- true
-        let out = if diag.Run () = int Gtk.ResponseType.Accept
-                  then Some diag.Filename
-                  else None
-        diag.Destroy()
-        out 
-        
-    static member fileChooser(label: string) =
+    static member fileFilter(name, extensions) =
+        let filter = new Gtk.FileFilter()
+        filter.Name <- name
+        extensions |> List.iter filter.AddPattern
+        filter
+
+    static member fileChooser(label: string, ?path, ?filter) =
         let win  = new Gtk.Window("")
         let diag = new Gtk.FileChooserDialog(label
                                             ,win
@@ -207,7 +197,22 @@ type Dialog =
                                             ,"Open"
                                             ,Gtk.ResponseType.Accept
                                             )
-        diag.CanDefault <- true
+        diag.CanDefault    <- true
+
+        let path = defaultArg path None
+        match path with
+        | Some "~" -> ignore <| diag.SetCurrentFolder (Dialog.getUserDir())
+        | Some dir -> ignore <| diag.SetCurrentFolder dir
+        | _        -> ()
+
+
+        let filter = defaultArg filter None
+        match filter with
+        | Some (name, extList)
+         ->  diag.AddFilter <| Dialog.fileFilter(name, extList)
+        | None
+         -> ()
+
         let out = if diag.Run () = int Gtk.ResponseType.Accept
                   then Some diag.Filename
                   else None
