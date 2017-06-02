@@ -220,7 +220,7 @@ type Dialog =
         win.Destroy()
         out 
 
-    static member dirChooser (win: Gtk.Window, label: string, path: string option) =
+    static member dirChooser (win: Gtk.Window, label: string, ?path) =
         let diag = new Gtk.FileChooserDialog(label
                                             ,win
                                             ,Gtk.FileChooserAction.Open
@@ -229,6 +229,13 @@ type Dialog =
                                             ,"Open"
                                             ,Gtk.ResponseType.Accept
                                             )
+
+        let path = defaultArg path None
+        match path with
+        | Some "~" -> ignore <| diag.SetCurrentFolder (Dialog.getUserDir())
+        | Some dir -> ignore <| diag.SetCurrentFolder dir
+        | _        -> ()
+
         diag.Action <- Gtk.FileChooserAction.SelectFolder
         Option.iter (fun p -> ignore <| diag.SetCurrentFolder p) path
         diag.CanDefault <- true
