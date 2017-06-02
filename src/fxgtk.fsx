@@ -222,16 +222,13 @@ type Dialog =
                                             ,Gtk.ResponseType.Accept
                                             )
         diag.Action <- Gtk.FileChooserAction.SelectFolder
-
         Option.iter (fun p -> ignore <| diag.SetCurrentFolder p) path
         diag.CanDefault <- true
-
-        App.invoke (fun () -> if diag.Run () = int Gtk.ResponseType.Accept
-                              then handler <| Some diag.Filename
-                              else handler None
-                              diag.Destroy()
-                    )
-
+        let out = if diag.Run () = int Gtk.ResponseType.Accept
+                  then Some diag.Filename
+                  else None
+        diag.Destroy()
+        out
 
         
     static member infoDialog (parent: Gtk.Window, message: string)   =
