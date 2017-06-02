@@ -2,19 +2,7 @@
 
 open System
 
-let gtkHome = "/usr/lib/mono/gtk-sharp-3.0/"
 
-let gtkDependencies =  
-    let gtkDlls = [
-        "atk-sharp.dll"
-        ;"gio-sharp.dll"
-        ;"glib-sharp.dll"
-        ;"gtk-sharp.dll"
-        ;"gdk-sharp.dll"
-        ;"cairo-sharp.dll"
-        ;"pango-sharp.dll"
-        ]
-    List.map (fun p -> System.IO.Path.Combine(gtkHome, p)) gtkDlls
 
 module SysUtils = 
 
@@ -81,6 +69,26 @@ type FsharpCompiler =
 
         // printfn "%A" args 
         SysUtils.runShellCmd "fsharpc" args 
+
+
+
+// ------------------- U S E R   O P T I O N S ---------------- //
+
+let gtkHome = "/usr/lib/mono/gtk-sharp-3.0/"
+
+let gtkDependencies =
+    let gtkDlls = [
+        "atk-sharp.dll"
+        ;"gio-sharp.dll"
+        ;"glib-sharp.dll"
+        ;"gtk-sharp.dll"
+        ;"gdk-sharp.dll"
+        ;"cairo-sharp.dll"
+        ;"pango-sharp.dll"
+        ]
+    List.map (fun p -> System.IO.Path.Combine(gtkHome, p)) gtkDlls
+
+
 
 
 let buildLib () =
