@@ -76,7 +76,13 @@ type FsharpCompiler =
         SysUtils.runShellCmd "fsharpc" args 
 
 
-
+let buildLib () =
+    FsharpCompiler.CompileLibrary(
+        ["src/fxgtk.fsx"]
+        ,gtkDependencies
+        ,"bin/fxgtk.dll"
+        ,"bin/fxgtk.xml"
+        )
 
 let buildExample example =
     FsharpCompiler.CompileExecutableWEXE(
