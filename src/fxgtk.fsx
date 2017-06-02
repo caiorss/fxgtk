@@ -237,7 +237,8 @@ type Dialog =
                                            ,Gtk.ButtonsType.Close
                                            ,message
                                            )
-        App.invoke (fun () -> ignore <| dialog.Run () ; dialog.Destroy ())
+        ignore <| dialog.Run ()
+        dialog.Destroy ()
 
 
     static member warningDialog (parent: Gtk.Window) (message: string)   =
@@ -247,7 +248,9 @@ type Dialog =
                                            ,Gtk.ButtonsType.Close
                                            ,message
                                            )
-        App.invoke (fun () -> ignore <| dialog.Run () ; dialog.Destroy ())
+        ignore <| dialog.Run ()
+        dialog.Destroy ()
+
 
 
     static member errorDialog (parent: Gtk.Window) (message: string)   =
@@ -257,7 +260,10 @@ type Dialog =
                                            ,Gtk.ButtonsType.Close
                                            ,message
                                            )
-        App.invoke (fun () -> ignore <| dialog.Run () ; dialog.Destroy ())
+        ignore <| dialog.Run ()
+        dialog.Destroy ()
+
+
 
     /// Question Dialog with Yes and No button
     static member questionDialog (parent: Gtk.Window) (message: string)  handler  =
@@ -267,12 +273,10 @@ type Dialog =
                                            ,Gtk.ButtonsType.YesNo
                                            ,message
                                            )
-        App.invoke (fun () ->
-                    handler (dialog.Run () = int Gtk.ResponseType.Yes );                    
-                    dialog.Destroy ()
+        let resp =  dialog.Run () = int Gtk.ResponseType.Yes 
+        dialog.Destroy ()
+        resp                           
 
-                    )
-       
 
 
 module TextView =
