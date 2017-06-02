@@ -106,11 +106,18 @@ let getExamples () =
 let runArgs args =
     match args with
         
+   // Build library fxgtk.dll 
+    | ["--lib"] -> buildLib()
+        
     // Show all examples  
     | ["--example"]
-      -> SysUtils.getFilesExt "examples" "*.fsx"
-      |> Seq.map SysUtils.baseName
-      |> Seq.iter (printfn "%s")
+      -> getExamples () |> Seq.iter (printfn "%s")
+         
+
+    // Build all examples   
+    | ["--example" ; "--all"]
+      -> getExamples() |> Seq.iter buildExample
+
     
     // Build a given example 
     | ["--example"; fileName] -> buildExample fileName
