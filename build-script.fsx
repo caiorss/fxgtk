@@ -171,6 +171,8 @@ let runArgs args =
     
     // Build a given example 
     | ["--example"; fileName] -> buildExample fileName
+
+    | ["--build"; file]      -> ignore <| FsharpCompiler.CompileExecutable file
     
     | cmd -> printfn "Error: Invalid command: %A" cmd
 
