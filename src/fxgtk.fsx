@@ -211,8 +211,7 @@ type Dialog =
         win.Destroy()
         out 
 
-    static member folderChooser (win: Gtk.Window) (label: string) (path: string option) handler   =
-
+    static member dirChooser (win: Gtk.Window, label: string, path: string option) =
         let diag = new Gtk.FileChooserDialog(label
                                             ,win
                                             ,Gtk.FileChooserAction.Open
