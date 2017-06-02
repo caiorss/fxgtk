@@ -3,9 +3,28 @@
 open System
 
 
+module Term =
+    open System
+    
+    let blue     = ConsoleColor.Blue
+    let yellow   = ConsoleColor.Yellow
+    let red      = ConsoleColor.Red
+    let darkBlue = ConsoleColor.DarkBlue
 
-module SysUtils = 
+    let withColor color action =
+        System.Console.ForegroundColor <- color
+        action()
+        System.Console.ResetColor()
 
+    let printWithColor color (msg: string) =
+        System.Console.ForegroundColor <- color
+        System.Console.WriteLine(msg)
+        System.Console.ResetColor()
+
+
+module SysUtils =
+    open System
+               
     let runShellCmd (program: String) (args: string list) =
         let argString = String.Join(" ", args)
         let p = System.Diagnostics.Process.Start(program, argString)
@@ -106,7 +125,7 @@ let buildExample example =
     let outputFile = example |> SysUtils.joinPath "bin/"
                              |> SysUtils.replaceExt "exe"
 
-    printfn "Building Example: %s\n" example
+    Term.withColor Term.blue (fun () -> printfn "Building Example: %s\n" example)
 
     let status = FsharpCompiler.CompileExecutableWEXE([SysUtils.joinPath "examples/" example]
                                                       ,["bin/fxgtk.dll"] @ gtkDependencies
@@ -114,8 +133,8 @@ let buildExample example =
                                                       )
 
     match status with
-    | 0 -> printfn "\nBuild %s successful. Ok"  outputFile
-    | _ -> printfn "\nBuild %s Failed." outputFile
+    | 0 -> Term.printWithColor Term.blue (sprintf "\nBuild %s successful. Ok"  outputFile)
+    | _ -> Term.printWithColor Term.red  (sprintf "\nBuild %s Failed." outputFile)
     printfn "-------------------------------------\n\n"
 
 
