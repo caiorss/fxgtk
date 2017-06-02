@@ -14,7 +14,7 @@ text viewer.
 #r "/usr/lib/mono/gtk-sharp-3.0/gdk-sharp.dll"
 #r "/usr/lib/mono/gtk-sharp-3.0/pango-sharp.dll"
 #r "/usr/lib/mono/gtk-sharp-3.0/cairo-sharp.dll"
-#r "../fxgtk.dll"
+#r "../bin/fxgtk.dll"
 #endif
 
 open System 
@@ -80,10 +80,8 @@ let updateEntry msg =
 Button.onClick buttonClear (fun _ -> TextView.clearText tview)
 
 Button.onClick buttonOpen (fun _ ->
-                           Dialog.fileChooser win
-                                              "Choose a file"
-                                              None
-                                              updateEntry
+                           Dialog.fileChooser "Choose a file"
+                           |> updateEntry
                            )
 
 // --------- Window 2 - Image Viewer -------- //
@@ -119,10 +117,8 @@ let updateImage msg =
                    Image.setFromFileScale h file img
                    
 Button.onClick buttonShowImage (fun _ ->
-                                Dialog.fileChooser win2
-                                                   "Choose an image"
-                                                   None
-                                                   updateImage
+                                Dialog.fileChooser("Choose an image")
+                                |> updateImage
                                 )
 
 
