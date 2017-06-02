@@ -20,7 +20,10 @@ module SysUtils =
 
     let runShellCmd (program: String) (args: string list) =
         let argString = String.Join(" ", args)
-        ignore <| System.Diagnostics.Process.Start(program, argString)
+        let p = System.Diagnostics.Process.Start(program, argString)
+        printfn "Running %s %s" program argString
+        p.WaitForExit()
+        p.ExitCode
 
     let joinPath path1 path2 =
         System.IO.Path.Combine(path1, path2)
