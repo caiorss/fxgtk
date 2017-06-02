@@ -27,14 +27,14 @@ let imview = ImageView.makeImageView "Image Display"
 ImageView.show imview
 
 
+let model =  ListStore.listStore (
+    [
+     typeof<Gdk.Pixbuf> // (Col 0) Image Thumbnail  - IconView image
+    ;typeof<string>     // (Col 1) File name        - IconView label
+    ;typeof<Gdk.Pixbuf> // (Col 2) Original image read from file
+    ;typeof<string>     // (Col 3) Full file name with path
+     ])
 
-
-let model =  ListStore.listStore [
-                                  typeof<Gdk.Pixbuf> // (Col 0) Image Thumbnail  - IconView image 
-                                ; typeof<string>     // (Col 1) File name        - IconView label
-                                ; typeof<Gdk.Pixbuf> // (Col 2) Original image read from file 
-                                ; typeof<string>     // (Col 3) Full file name with path
-                                 ]
 
 let iconview =  IconView.iconView model 0 1 
 iconview.SelectionMode <- Gtk.SelectionMode.Browse
