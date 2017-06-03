@@ -57,7 +57,7 @@ module SysUtils =
 
     let mkdir path =
         if not <| directoryExists path
-        then System.IO.Directory.CreateDirectory path
+        then ignore <| System.IO.Directory.CreateDirectory path
 
     /// Compute File MD5 Sum 
     let fileMD5 file =
@@ -104,11 +104,22 @@ type FsharpCompiler =
                                         ,dependencies: string list 
                                         ,output
                                         ,?staticLink
+                                        ,?resources
+                                        ,?others:       string list 
                                         )  =
 
         let stLink = match staticLink with
                      | Some xs  -> String.Join(" ", xs |> List.map(fun s -> "--staticlink:" + s))
                      | None     -> ""
+
+        let resourcesList =
+            match resources with
+            | Some xs  -> String.Join(" ", xs |> List.map(fun s -> "--linkresource:" + s))
+            | None     -> ""
+
+        let others = match others with
+                     | Some xs -> String.Join(" ", xs)
+                     | _       -> ""
         
         let args = [ String.Join(" ", sources)
                    ; "--target:winexe"
@@ -117,6 +128,8 @@ type FsharpCompiler =
                    ; "--nologo"
                    ; String.Join(" ", dependencies |> List.map (fun s -> "-r:" + s))
                    ; stLink
+                   ; resourcesList
+                   ; others
                    ]
 
         // printfn "%A" args 
@@ -176,6 +189,23 @@ let getExamples () =
     SysUtils.getFilesExt "examples" "*.fsx"
     |> Seq.map SysUtils.baseName
 
+
+let buildDemo1() =
+    let outputFile = "bin/demo1.exe"
+    let status = FsharpCompiler.CompileExecutableWEXE(
+        [SysUtils.joinPath "examples/" "example1-image-viewer.fsx"]
+        ,["bin/fxgtk.dll"] @ gtkDependencies
+        ,outputFile
+        ,staticLink = ["fxgtk"]
+        //,others = ["--win32res:AppIcon.rc"]
+        ,resources  = ["icontest.ico,Main.icon.ico"] 
+        )
+    match status with
+    | 0 -> Term.printWithColor Term.blue (sprintf "\nBuild %s successful. Ok"  outputFile)
+    | _ -> Term.printWithColor Term.red  (sprintf "\nBuild %s Failed." outputFile)
+    printfn "-------------------------------------\n\n"
+    
+
 let runArgs args =
     match args with
         
@@ -199,9 +229,11 @@ let runArgs args =
     // Build a given example 
     | ["--example"; fileName] -> buildExample fileName
 
-    | ["--build"; file]      -> ignore <| FsharpCompiler.CompileExecutable file
+    | ["--build"; file]       -> ignore <| FsharpCompiler.CompileExecutable file
+
+    | ["--demo1"]             -> buildDemo1()
     
-    | cmd -> printfn "Error: Invalid command: %A" cmd
+    | cmd                     -> printfn "Error: Invalid command: %A" cmd
 
 
 
