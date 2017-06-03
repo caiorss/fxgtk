@@ -333,6 +333,16 @@ module Pixbuf =
     /// Load image from file
     let loadFile (file: string) = new Gdk.Pixbuf(file)
 
+
+    /// Load file from same directory as the assembly/executable.
+    let loadAssetFile (file: string) =
+        let path = System.Reflection
+                         .Assembly
+                         .GetExecutingAssembly()
+                         .Location
+        let file = System.IO.Path.Combine(System.IO.Path.GetDirectoryName path, file)
+        new Gdk.Pixbuf(file)
+
     let getWidth (pb: T) = pb.Width
 
     let getHeight (pb: T) = pb.Height
