@@ -15,8 +15,9 @@ module L = Fxgtk.Layout
 
 App.init()
 
-
 let win = Window.mainWindow "Main window" 
+
+// win.Icon <- Pixbuf.loadAssetFile "icontest.ico"
 
 let entryImagePath = Entry.entry()
 let buttonOpen     = Button.button "Open Image"
@@ -33,16 +34,19 @@ Wdg.add win vbox
 
 let model = FModel.make ""
 
-FModel.subscribe model (fun file ->
-                       Image.setFromFileScale (Wdg.getHeight image) file image
-                       Entry.setText entryImagePath file 
-                      )
+FModel.subscribe model (
+    fun file ->
+    Image.setFromFileScale (Wdg.getHeight image) file image
+    Entry.setText entryImagePath file 
+    )
 
 FModel.addLogger model 
 
 win.SizeAllocated.Subscribe (fun _ -> FModel.trigger model)
 
-let imageFilter = "Image Files", ["*.png" ;"*.jpeg"; "*.png"; "*.tiff"; "*.bmp"; "*.gif"] 
+let imageFilter = "Image Files", ["*.png" ; "*.jpg"; "*.jpeg"
+                                 ;"*.tiff"; "*.bmp"; "*.gif"                                  
+                                 ] 
 
 Button.onClick buttonOpen (fun _ ->
                            Dialog.fileChooser("Choose an image"
