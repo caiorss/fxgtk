@@ -52,6 +52,22 @@ module SysUtils =
         | None   -> []
         | Some i -> args.[(i+1)..] |> List.ofArray
 
+    let directoryExists path =
+        System.IO.Directory.Exists path 
+
+    let mkdir path =
+        if not <| directoryExists path
+        then System.IO.Directory.CreateDirectory path
+
+    /// Compute File MD5 Sum 
+    let fileMD5 file =
+        use md5    = System.Security.Cryptography.MD5.Create()
+        use stream = System.IO.File.OpenRead file
+        System.BitConverter
+              .ToString(md5.ComputeHash(stream))
+              .Replace("-", "")
+              .ToLower()
+
 
 type FsharpCompiler =
     static member CompileLibrary(sources:      string list 
@@ -79,22 +95,28 @@ type FsharpCompiler =
                    ; "--target:exe"
                    ; "--out:" + output
                    ; "--debug+"
-                   ; "--nologo"
+                   ; "--nologo"                   
                    ]
         SysUtils.runShellCmd "fsharpc" args
 
 
     static member CompileExecutableWEXE( sources:      string list 
                                         ,dependencies: string list 
-                                        ,output                             
+                                        ,output
+                                        ,?staticLink
                                         )  =
 
+        let stLink = match staticLink with
+                     | Some xs  -> String.Join(" ", xs |> List.map(fun s -> "--staticlink:" + s))
+                     | None     -> ""
+        
         let args = [ String.Join(" ", sources)
                    ; "--target:winexe"
                    ; "--out:" + output
                    ; "--debug+"
                    ; "--nologo"
                    ; String.Join(" ", dependencies |> List.map (fun s -> "-r:" + s))
+                   ; stLink
                    ]
 
         // printfn "%A" args 
@@ -141,6 +163,7 @@ let buildExample example =
     let status = FsharpCompiler.CompileExecutableWEXE([SysUtils.joinPath "examples/" example]
                                                       ,["bin/fxgtk.dll"] @ gtkDependencies
                                                       ,outputFile
+                                                      ,staticLink = ["fxgtk"]
                                                       )
 
     match status with
@@ -168,6 +191,10 @@ let runArgs args =
     | ["--example" ; "--all"]
       -> getExamples() |> Seq.iter buildExample
 
+    | ["--all"]
+      ->  buildLib()
+          getExamples() |> Seq.iter buildExample
+         
     
     // Build a given example 
     | ["--example"; fileName] -> buildExample fileName
@@ -175,6 +202,7 @@ let runArgs args =
     | ["--build"; file]      -> ignore <| FsharpCompiler.CompileExecutable file
     
     | cmd -> printfn "Error: Invalid command: %A" cmd
+
 
 
 #if INTERACTIVE
