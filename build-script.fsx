@@ -76,7 +76,11 @@ type FsharpCompiler =
                                 ,doc
                                  )  =
 
-        let args = [ String.Join(" ", sources)
+        let srcList = String.Join(" ", sources)
+        
+        printfn "Sources = %s" srcList
+        
+        let args = [ srcList
                    ; "--target:library"
                    ; "--out:" + output
                    ; "--doc:" + doc
@@ -85,7 +89,7 @@ type FsharpCompiler =
                    ; String.Join(" ", dependencies |> List.map (fun s -> "-r:" + s))
                    ]
 
-        printfn "%A" args 
+        // printfn "%A" args 
         SysUtils.runShellCmd "fsharpc" args 
 
 
@@ -157,7 +161,7 @@ let gtkDependencies =
 
 
 let buildLib () =
-    let status = FsharpCompiler.CompileLibrary(["src/fxgtk.fsx"]
+    let status = FsharpCompiler.CompileLibrary(["src/fxgtk.fsx"; "src/wforms.fsx"]
                                                ,gtkDependencies
                                                ,"bin/fxgtk.dll"
                                                ,"bin/fxgtk.xml"

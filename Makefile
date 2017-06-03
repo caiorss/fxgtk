@@ -7,7 +7,7 @@ GTK_HOME   := /usr/lib/mono/gtk-sharp-3.0/
 # --> Library building settins 
 lib    := fxgtk.dll 
 libxml := fxgtk.xml 
-libsrc := src/fxgtk.fsx
+libsrc := src/fxgtk.fsx src/wforms.fsx
 
 
 # --> App building settings 

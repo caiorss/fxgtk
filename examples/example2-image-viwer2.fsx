@@ -11,7 +11,7 @@
 open System
 open Fxgtk
 open Fxgtk.TreeView.Types
-open Fxgtk.WUtils
+open Fxgtk.Forms 
 
 
 
@@ -58,8 +58,10 @@ let findFiles extList directory =
 let findImages = findFiles [".png"; ".jpg"; ".jpeg"; ".gif"; ".tiff"; ".mp4"; ".avi"]
 
 
-let updateImage iconview display =
+let updateImage iconview (display: ImageView.ImageView) =
+    
     let image = IconView.getSelecetdItem iconview 2 :?> Gdk.Pixbuf
+                // |> Pixbuf.scaleFit (Wdg.getSize <| display.GetImage())    
     ImageView.setImageFromPbuf display image 
 
 

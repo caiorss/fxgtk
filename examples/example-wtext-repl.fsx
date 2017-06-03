@@ -10,7 +10,7 @@
 
 open System
 open Fxgtk
-open Fxgtk.WUtils
+open Fxgtk.Forms
 
 let runThread (fn: unit -> unit) =
     let th = System.Threading.Thread fn

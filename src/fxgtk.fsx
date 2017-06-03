@@ -23,6 +23,7 @@ $ fsc fxgtk.fsx --target:library --out:fxgtk.dll \
 #r "/usr/lib/mono/gtk-sharp-3.0/cairo-sharp.dll"
 #endif
 
+namespace Fxgtk
 
 /// Gtk Color combinators
 module Color =
