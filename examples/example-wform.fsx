@@ -10,7 +10,7 @@
 
 open System 
 open Fxgtk
-open Fxgtk.WUtils
+open Fxgtk.Forms
 
 
 App.init()
