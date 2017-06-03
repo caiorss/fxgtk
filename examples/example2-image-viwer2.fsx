@@ -19,10 +19,6 @@ App.init()
 
 //--------------- viwer GUI Layout ------------------------  // 
 
-let window = Window.mainWindow "TreeViewTest"
-             // |> Window.setSize 143 200
-             |> Window.setPosition Window.PosCenter
-
 let imview = ImageView.makeImageView "Image Display"
 ImageView.show imview
 
@@ -39,9 +35,22 @@ let model =  ListStore.listStore (
 let iconview =  IconView.iconView model 0 1 
 iconview.SelectionMode <- Gtk.SelectionMode.Browse
 
-// Add widget 
-Wdg.add window (Layout.scrolled iconview)
 
+
+let window = Window.mainWindow "TreeViewTest"
+             // |> Window.setSize 143 200
+             |> Window.setPosition Window.PosCenter
+
+let buttonOpen  = Button.button "Open Directory"
+let buttonClear = Button.button "Clear"
+
+let vbox = Layout.vbox [ Layout.phbox [ Layout.pack buttonOpen
+                                      ; Layout.pack buttonClear
+                                      ]
+                       ; Layout.pfill <| Layout.scrolled iconview
+                         ]
+// Add widget 
+Wdg.add window vbox
 // Show Window 
 Wdg.showAll window   
 
@@ -58,8 +67,7 @@ let findFiles extList directory =
 let findImages = findFiles [".png"; ".jpg"; ".jpeg"; ".gif"; ".tiff"; ".mp4"; ".avi"]
 
 
-let updateImage iconview (display: ImageView.ImageView) =
-    
+let updateImage iconview (display: ImageView.ImageView) =   
     let image = IconView.getSelecetdItem iconview 2 :?> Gdk.Pixbuf
                 // |> Pixbuf.scaleFit (Wdg.getSize <| display.GetImage())    
     ImageView.setImageFromPbuf display image 
@@ -72,23 +80,20 @@ let addImageFile (lstore: Gtk.ListStore) file =
     ignore <| lstore.AppendValues(thumb, label, image, file)
 
 
-
-let startModel path = 
+let loadImages path = 
     path |> findImages
          |> Seq.iter (addImageFile model)
 
-let args = System.Environment.GetCommandLineArgs()
-          |> List.ofArray
-          |> List.tail 
 
 let chooseDirectory () =
+    ListStore.clear model
     let path = Dialog.dirChooser(window
                                  ,"Choose a directory"
                                  ,Some "~"
                                  )         
     match path with
-    | None   -> App.exit ()
-    | Some p -> startModel p
+    | None   -> ()
+    | Some p -> loadImages p
     
 
 
@@ -99,12 +104,14 @@ let setClipboard text =
 
 let update () =  updateImage iconview imview    
 
-
-IconView.onActivated iconview (fun _ -> update ())
-IconView.onMoveCursor iconview (fun _ -> update ())
+/// Event Handling
 
 
-chooseDirectory()
+
+IconView.onActivated  iconview    (fun _ -> update ())
+IconView.onMoveCursor iconview    (fun _ -> update ())
+Button.onClick        buttonOpen  (fun _ -> chooseDirectory())
+Button.onClick        buttonClear (fun _ -> ListStore.clear model)
 
 #if REPL         
 let () = App.runThread()
